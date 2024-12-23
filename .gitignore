@@ -1,3 +1,15 @@
+.vscode/*
+.vs/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+.vscode/settings.json
+build/*
+plugins/*
+
+
 # Logs
 logs
 *.log
