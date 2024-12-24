@@ -35,7 +35,6 @@ Rocket League is a fast-paced game requiring quick reflexes, precise control, an
 
 ## Objectives
 
-The AI Portland Rocket League project aims to:
 - Improve player mechanics and strategic understanding.
 - Foster better teamwork and communication within teams.
 - Deliver actionable, easy-to-understand insights to players of all skill levels.
