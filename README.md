@@ -46,4 +46,4 @@ We welcome contributions from the community! Please open an issue or submit a pu
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [Apache 2 License](LICENSE).
