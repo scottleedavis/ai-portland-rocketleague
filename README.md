@@ -1,5 +1,5 @@
 # ai-portland-rocketleague
-Materials/code for a 10 minute presentation for an [AI Portland podcast[(https://creators.spotify.com/pod/show/superchargedbyai/) on using AI for Game analysis and coaching
+Materials/code for a 10 minute presentation for an [AI Portland podcast](https://creators.spotify.com/pod/show/superchargedbyai/) on using AI for Game analysis and coaching
 
 Work In Progress 
 
