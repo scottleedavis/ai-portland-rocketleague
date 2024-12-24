@@ -13,21 +13,17 @@
 
 BAKKESMOD_PLUGIN(AICoachBakkesPlugin, "AI Dribble Coach", plugin_version, PLUGINTYPE_THREADED)
 
-std::shared_ptr<CVarManagerWrapper> _globalCvarManager;
 bool isDribble = false;
 std::string query = "";
-const std::string le_prompt = "here is a replay of a car and a ball practicing ground dribbling before dropping in freeplay. Give a brief one sentence recommendation to the player.";
+std::shared_ptr<CVarManagerWrapper> _globalCvarManager;
+const std::string le_prompt = "analyze this replay of a car and ball practicing ground dribbling until it touches ground in freeplay. Give a brief one sentence recommendation to the player.";
 const std::string data_row_header = "time, car_x, car_y, car_z, ball_x, ball_y, ball_z";
 
 void AICoachBakkesPlugin::onLoad()
 {
     _globalCvarManager = cvarManager;
-
-    cvarManager->registerCvar("anthropic_api_key", "", "API key for the Anthropic AI service", true);
-
-    // You can also print the current value of the CVar
+    cvarManager->registerCvar("anthropic_api_key", "YOUR_SECRET_API_KEY", "API key for the Anthropic AI service", true);
     std::string apiKey = cvarManager->getCvar("anthropic_api_key").getStringValue();
-    LOG("Loading. ");
 
     cvarManager->registerNotifier("ai_dribble", std::bind(&AICoachBakkesPlugin::OnCommand, this, std::placeholders::_1), "Starts/stops dribble analysis", PERMISSION_FREEPLAY);
     gameWrapper->HookEvent("Function TAGame.Ball_TA.OnRigidBodyCollision", std::bind(&AICoachBakkesPlugin::OnDroppedBall, this, std::placeholders::_1));
@@ -51,19 +47,17 @@ void AICoachBakkesPlugin::OnDroppedBall(std::string eventName)
         Vector ballLocation = ball.GetLocation();
         Vector ballVelocity = ball.GetVelocity();
 
+        // Ball is near or on the ground
         if (ballLocation.Z <= 94) {
-            // Ball is near or on the ground
+            
             isDribble = false;
             LOG("Querying AI...");
 
             std::string output = "";
-            for (unsigned int i = 0; i < playbackData.size(); i++)
-            {
-                output += playbackData.at(i) + " ";
-            }
+            for (unsigned int i = 0; i < playbackData.size(); i++) output += playbackData.at(i) + " ";
+
             server_thread = std::thread(std::bind(&AICoachBakkesPlugin::AskAnthropic, this, output));
             server_thread.detach();
-
 
             playbackData.clear();
             playbackData.push_back(le_prompt);
@@ -71,10 +65,10 @@ void AICoachBakkesPlugin::OnDroppedBall(std::string eventName)
 
         }      
     }
-    this->OnRecordTick("do");
+    this->OnRecordTick();
 }
 
-void AICoachBakkesPlugin::OnRecordTick(std::string eventName)
+void AICoachBakkesPlugin::OnRecordTick()
 {
     if (!isDribble)
         return;
@@ -128,84 +122,78 @@ void AICoachBakkesPlugin::OnCommand(std::vector<std::string> params)
         playbackData.push_back(le_prompt);
         playbackData.push_back(data_row_header);
         
-        this->OnRecordTick("do");
+        this->OnRecordTick();
 
     }
 }
 
-std::string AICoachBakkesPlugin::AskAnthropic(std::string prompt) {
+void AICoachBakkesPlugin::AskAnthropic(std::string prompt) {
     const std::string url = "https://api.anthropic.com/v1/messages";
     const std::string data = "{\"model\": \"claude-3-5-sonnet-20241022\", \"max_tokens\": 8192,\"messages\": [{\"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
     const std::string apiKey = cvarManager->getCvar("anthropic_api_key").getStringValue();
-    LOG("Waiting....");
 
-    // Initialize WinHTTP session handle
+    LOG("Waiting....");
     HINTERNET hSession = WinHttpOpen(
-        L"A WinHTTP Example Program/1.0",          // User agent
-        WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,        // Access type
-        WINHTTP_NO_PROXY_NAME,                    // Proxy name
-        WINHTTP_NO_PROXY_BYPASS,                  // Proxy bypass
+        L"AICoachBakkesPlugin/1.0",                 // User agent
+        WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,          // Access type
+        WINHTTP_NO_PROXY_NAME,                      // Proxy name
+        WINHTTP_NO_PROXY_BYPASS,                    // Proxy bypass
         0);
 
     if (hSession == NULL) {
         LOG("WinHttpOpen failed: " + std::to_string(GetLastError()));
-        return "error";
+        return;
     }
 
-    // Open a secure connection to the server on port 443
     HINTERNET hConnect = WinHttpConnect(
         hSession,
-        L"api.anthropic.com",                     // Server name
-        INTERNET_DEFAULT_HTTPS_PORT,              // HTTPS port (443)
+        L"api.anthropic.com",                       // Server name
+        INTERNET_DEFAULT_HTTPS_PORT,                // HTTPS port (443)
         0);
 
     if (hConnect == NULL) {
         WinHttpCloseHandle(hSession);
         LOG("WinHttpConnect failed: " + std::to_string(GetLastError()));
-        return "error";
+        return;
     }
 
-    // Create the HTTP request for POST method
     HINTERNET hRequest = WinHttpOpenRequest(
-        hConnect,                // Connection handle
-        L"POST",                 // HTTP method
-        L"/v1/messages",         // Path (API endpoint)
-        NULL,                    // HTTP version (use default)
-        WINHTTP_NO_REFERER,      // Referrer (not needed)
-        WINHTTP_NO_ADDITIONAL_HEADERS, // Additional headers (not needed)
-        WINHTTP_FLAG_SECURE);    // Enable secure connection (HTTPS)
+        hConnect,                                   // Connection handle
+        L"POST",                                    // HTTP method
+        L"/v1/messages",                            // Path (API endpoint)
+        NULL,                                       // HTTP version (use default)
+        WINHTTP_NO_REFERER,                         // Referrer (not needed)
+        WINHTTP_NO_ADDITIONAL_HEADERS,              // Additional headers (not needed)
+        WINHTTP_FLAG_SECURE);                       // Enable secure connection (HTTPS)
 
     if (hRequest == NULL) {
         WinHttpCloseHandle(hConnect);
         WinHttpCloseHandle(hSession);
         LOG("WinHttpOpenRequest failed: " + std::to_string(GetLastError()));
-        return "error";
+        return;
     }
 
-    // Set the headers (Content-Type and Authorization with API Key)
     std::wstring headers = L"Content-Type: application/json\r\n";
     headers += L"anthropic-version: 2023-06-01\r\n";
     headers += L"x-api-key: " + std::wstring(apiKey.begin(), apiKey.end()) + L"\r\n";
 
-    // Send the HTTP POST request
     BOOL result = WinHttpSendRequest(
         hRequest,
-        headers.c_str(),                          // Headers
-        -1,                                       // Length of the header
-        (LPVOID)data.c_str(),                     // Request body
-        data.size(),                              // Body length
-        data.size(),                              // Total length
-        0);                                       // Context (optional)
+        headers.c_str(),                            // Headers
+        -1,                                         // Length of the header
+        (LPVOID)data.c_str(),                       // Request body
+        data.size(),                                // Body length
+        data.size(),                                // Total length
+        0);                                         // Context (optional)
 
     if (!result) {
         WinHttpCloseHandle(hRequest);
         WinHttpCloseHandle(hConnect);
         WinHttpCloseHandle(hSession);
         LOG("WinHttpSendRequest failed: " + std::to_string(GetLastError()));
-        return "error";
+        return;
     }
 
-    // Receive the response from the server
     result = WinHttpReceiveResponse(hRequest, NULL);
 
     if (!result) {
@@ -213,42 +201,31 @@ std::string AICoachBakkesPlugin::AskAnthropic(std::string prompt) {
         WinHttpCloseHandle(hConnect);
         WinHttpCloseHandle(hSession);
         LOG("WinHttpReceiveResponse failed: " + std::to_string(GetLastError()));
-        return "error";
+        return;
     }
 
-    // Read the response data
     DWORD bytesRead = 0;
     DWORD totalBytesRead = 0;
-    char buffer[4096];  // Fixed size buffer
+    char buffer[4096];  
     std::stringstream responseStream;
 
-    // Read the response data in chunks
     while (WinHttpReadData(hRequest, (LPVOID)buffer, sizeof(buffer), &bytesRead) && bytesRead > 0) {
-        // Debug: Log the size of the data read
-       //std::cout << "Bytes read: " << bytesRead << std::endl;
 
-        // Write the buffer content into the response stream
         responseStream.write(buffer, bytesRead);
         totalBytesRead += bytesRead;
 
-        // Optional: Check if buffer has been filled to prevent overflows
         if (totalBytesRead >= 100000) {
             LOG("Warning: Response data exceeds 100KB");
-            return "error";
+            return;
         }
     }
 
-    // Convert response stream to string
-    std::string response = responseStream.str();
-
-    // Clean up
     WinHttpCloseHandle(hRequest);
     WinHttpCloseHandle(hConnect);
     WinHttpCloseHandle(hSession);
 
-    // Return the response
-    LOG(this->TrimString(response));
-    return response;
+    LOG(this->TrimString(responseStream.str()));
+
 }
 
 std::string AICoachBakkesPlugin::TrimString(const std::string& input) {

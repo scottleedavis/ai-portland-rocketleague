@@ -16,12 +16,14 @@ class AICoachBakkesPlugin: public BakkesMod::Plugin::BakkesModPlugin
 
 	std::thread server_thread;
 	std::vector<std::string> playbackData;
+	std::string TrimString(const std::string& input);
+
 
 public:
 	void onLoad() override;
 	void OnDroppedBall(std::string eventName);
 	void OnCommand(std::vector<std::string> params);
-	void OnRecordTick(std::string eventName);
-	std::string AskAnthropic(std::string prompt);
-	std::string TrimString(const std::string& input);
+	void OnRecordTick();
+	void AskAnthropic(std::string prompt);
+
 };
