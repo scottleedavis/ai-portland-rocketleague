@@ -142,7 +142,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="UpgradeTest.rc">
+    <ResourceCompile Include="AICoachBakkesPlugin.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

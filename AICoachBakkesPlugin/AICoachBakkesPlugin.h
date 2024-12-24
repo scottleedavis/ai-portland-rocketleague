@@ -14,19 +14,14 @@ class AICoachBakkesPlugin: public BakkesMod::Plugin::BakkesModPlugin
 	//,public PluginWindowBase // Uncomment if you want to render your own plugin window
 {
 
-	//std::shared_ptr<bool> enabled;
 	std::thread server_thread;
 	std::vector<std::string> playbackData;
 
 public:
-	//Boilerplate
 	void onLoad() override;
-	//void onUnload() override; // Uncomment and implement if you need a unload method
-	//std::string getCarStates();
-	//void RunTracking();
-	void OnFreeplayLoad(std::string eventName);
-	void OnFreeplayDestroy(std::string eventName);
 	void OnDroppedBall(std::string eventName);
 	void OnCommand(std::vector<std::string> params);
 	void OnRecordTick(std::string eventName);
+	std::string AskAnthropic(std::string prompt);
+	std::string TrimString(const std::string& input);
 };
