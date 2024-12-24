@@ -10,23 +10,30 @@
 #include "bakkesmod/wrappers/GameEvent/TutorialWrapper.h"
 #include "bakkesmod/wrappers/GameEvent/ServerWrapper.h"
 #include "bakkesmod/wrappers/GameObject/BallWrapper.h"
+#include "bakkesmod/plugin/bakkesmodplugin.h"
+#include "bakkesmod/wrappers/GameWrapper.h"
+#include "bakkesmod/wrappers/GameObject/CarWrapper.h"
+#include "bakkesmod/wrappers/ControllerWrapper.h" 
 
 BAKKESMOD_PLUGIN(AICoachBakkesPlugin, "AI Dribble Coach", plugin_version, PLUGINTYPE_THREADED)
 
 bool isDribble = false;
 std::string query = "";
 std::shared_ptr<CVarManagerWrapper> _globalCvarManager;
-const std::string le_prompt = "analyze this replay of a car and ball practicing ground dribbling until it touches ground in freeplay. Give a brief one sentence recommendation to the player.";
+const std::string le_prompt = "checking out this replay of a car and ball practicing dribbling, until it touches ground. Give a brief one sentence recommendation to the player saying what was done well and/or what could improve.  Make your response no longer than nine words.";
 const std::string data_row_header = "time, car_x, car_y, car_z, ball_x, ball_y, ball_z";
+std::string yonder_ai_text = "";
 
 void AICoachBakkesPlugin::onLoad()
 {
     _globalCvarManager = cvarManager;
-    cvarManager->registerCvar("anthropic_api_key", "YOUR_SECRET_API_KEY", "API key for the Anthropic AI service", true);
-    std::string apiKey = cvarManager->getCvar("anthropic_api_key").getStringValue();
+    cvarManager->registerCvar("anthropic_api_key", "YOUR_SECRET_KEY", "API key for the Anthropic AI service", true);
 
     cvarManager->registerNotifier("ai_dribble", std::bind(&AICoachBakkesPlugin::OnCommand, this, std::placeholders::_1), "Starts/stops dribble analysis", PERMISSION_FREEPLAY);
     gameWrapper->HookEvent("Function TAGame.Ball_TA.OnRigidBodyCollision", std::bind(&AICoachBakkesPlugin::OnDroppedBall, this, std::placeholders::_1));
+    resetKey = this->gameWrapper->GetFNameIndexByString("XboxTypeS_DPad_Up");
+    gameWrapper->RegisterDrawable(std::bind(&AICoachBakkesPlugin::Render, this, std::placeholders::_1));
+
     LOG("Loaded.");
 }
 
@@ -76,7 +83,6 @@ void AICoachBakkesPlugin::OnRecordTick()
     ServerWrapper server = gameWrapper->GetGameEventAsServer();
     auto players = gameWrapper->GetGameEventAsServer().GetCars();
 
-
     if (!gameWrapper->IsInFreeplay())
         return;
     ServerWrapper tutorial = gameWrapper->GetGameEventAsServer();
@@ -101,7 +107,6 @@ void AICoachBakkesPlugin::OnCommand(std::vector<std::string> params)
             return;
         ServerWrapper tutorial = gameWrapper->GetGameEventAsServer();
 
-
         if (tutorial.GetGameBalls().Count() == 0)
             return;
 
@@ -118,6 +123,7 @@ void AICoachBakkesPlugin::OnCommand(std::vector<std::string> params)
         ball.SetLocation(car.GetLocation() + addToBall);
         ball.SetVelocity(playerVelocity);
         isDribble = true;
+        yonder_ai_text = "";
 
         playbackData.push_back(le_prompt);
         playbackData.push_back(data_row_header);
@@ -127,10 +133,56 @@ void AICoachBakkesPlugin::OnCommand(std::vector<std::string> params)
     }
 }
 
+void AICoachBakkesPlugin::Render(CanvasWrapper canvas)
+{
+    if (!gameWrapper->IsInFreeplay())
+        return;
+
+    ServerWrapper tutorial = gameWrapper->GetGameEventAsServer();
+
+    if (tutorial.GetGameBalls().Count() == 0)
+        return;
+
+    BallWrapper ball = tutorial.GetGameBalls().Get(0);
+    CarWrapper car = tutorial.GetGameCar();
+   
+    if (ball.IsNull() || car.IsNull())
+        return;
+
+    // Detect if dribble reset
+    if (gameWrapper->IsKeyPressed(resetKey)) {
+
+        Vector playerVelocity = car.GetVelocity();
+        Vector addToBall = Vector(playerVelocity.X, playerVelocity.Y, 170);
+
+        addToBall.X = max(min(20.0f, addToBall.X), -20.0f);
+        addToBall.Y = max(min(30.0f, addToBall.Y), -30.0f);
+
+        ball.SetLocation(car.GetLocation() + addToBall);
+        ball.SetVelocity(playerVelocity);
+        isDribble = true;
+        yonder_ai_text = "";
+
+        playbackData.push_back(le_prompt);
+        playbackData.push_back(data_row_header);
+
+        this->OnRecordTick();
+        //gameWrapper->UnregisterDrawables();
+        return;
+    }
+
+    if (yonder_ai_text.length() == 0)
+        return;
+
+    canvas.SetColor(255, 255, 255, 255);
+    canvas.DrawString(yonder_ai_text, 3, 3);
+
+}
+
 void AICoachBakkesPlugin::AskAnthropic(std::string prompt) {
     const std::string url = "https://api.anthropic.com/v1/messages";
     const std::string data = "{\"model\": \"claude-3-5-sonnet-20241022\", \"max_tokens\": 8192,\"messages\": [{\"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
-    const std::string apiKey = cvarManager->getCvar("anthropic_api_key").getStringValue();
+    std::string secret = cvarManager->getCvar("anthropic_api_key").getStringValue();
 
     LOG("Waiting....");
     HINTERNET hSession = WinHttpOpen(
@@ -175,7 +227,7 @@ void AICoachBakkesPlugin::AskAnthropic(std::string prompt) {
 
     std::wstring headers = L"Content-Type: application/json\r\n";
     headers += L"anthropic-version: 2023-06-01\r\n";
-    headers += L"x-api-key: " + std::wstring(apiKey.begin(), apiKey.end()) + L"\r\n";
+    headers += L"x-api-key: " + std::wstring(secret.begin(), secret.end()) + L"\r\n";
 
     BOOL result = WinHttpSendRequest(
         hRequest,
@@ -219,12 +271,14 @@ void AICoachBakkesPlugin::AskAnthropic(std::string prompt) {
             return;
         }
     }
+    const std::string why_dribble = responseStream.str();
 
     WinHttpCloseHandle(hRequest);
     WinHttpCloseHandle(hConnect);
     WinHttpCloseHandle(hSession);
 
-    LOG(this->TrimString(responseStream.str()));
+
+    LOG(this->TrimString(why_dribble));
 
 }
 
@@ -240,7 +294,7 @@ std::string AICoachBakkesPlugin::TrimString(const std::string& input) {
     if (endPos == std::string::npos) {
         return "";
     }
-
-    return input.substr(startPos, endPos - startPos); 
+    yonder_ai_text = input.substr(startPos, endPos - startPos);
+    return yonder_ai_text;
 }
 

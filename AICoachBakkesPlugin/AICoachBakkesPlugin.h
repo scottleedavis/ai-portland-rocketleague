@@ -13,7 +13,7 @@ class AICoachBakkesPlugin: public BakkesMod::Plugin::BakkesModPlugin
 	//,public SettingsWindowBase // Uncomment if you wanna render your own tab in the settings menu
 	//,public PluginWindowBase // Uncomment if you want to render your own plugin window
 {
-
+	int resetKey;
 	std::thread server_thread;
 	std::vector<std::string> playbackData;
 	std::string TrimString(const std::string& input);
@@ -25,5 +25,5 @@ public:
 	void OnCommand(std::vector<std::string> params);
 	void OnRecordTick();
 	void AskAnthropic(std::string prompt);
-
+	void Render(CanvasWrapper canvas);
 };
