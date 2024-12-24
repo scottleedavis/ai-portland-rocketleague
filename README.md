@@ -40,10 +40,6 @@ Rocket League is a fast-paced game requiring quick reflexes, precise control, an
 - Deliver actionable, easy-to-understand insights to players of all skill levels.
 - Advance the use of AI in gaming to create a more immersive and educational experience.
 
-## Contributing
-
-We welcome contributions from the community! Please open an issue or submit a pull request to discuss new features, bug fixes, or enhancements.
-
 ## License
 
 This project is licensed under the [Apache 2 License](LICENSE).
