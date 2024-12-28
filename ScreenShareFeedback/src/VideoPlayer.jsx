@@ -24,8 +24,9 @@ const VideoPlayer = () => {
       });
 
       mediaRecorder.current.ondataavailable = async (event) => {
+        console.log("Received data from MediaRecorder:", event.data);
+
         if (event.data && event.data.size > 0) {
-          console.log("Received data from MediaRecorder:", event.data);
           console.log("Sending chunk with size:", event.data.size);
 
           try {

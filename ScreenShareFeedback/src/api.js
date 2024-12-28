@@ -1,11 +1,16 @@
 const baseUrl = "http://localhost:8000/api";
 
 export const sendChunkToApi = async (chunk, sessionId) => {
+  console.log("Sending chunk to API:", { size: chunk.size, type: chunk.type });
+
+  const formData = new FormData();
+  formData.append("chunk", chunk);
+  formData.append("sessionId", sessionId);
+
   try {
     const response = await fetch(`${baseUrl}/stream-chunk`, {
       method: "POST",
-      headers: { "Content-Type": "application/octet-stream", "Session-Id": sessionId },
-      body: chunk,
+      body: formData,
     });
 
     if (!response.ok) {
@@ -18,6 +23,7 @@ export const sendChunkToApi = async (chunk, sessionId) => {
     throw error;
   }
 };
+
 
 export const queryGemini = async (fileMetadata, prompt) => {
   try {
