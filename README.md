@@ -8,7 +8,7 @@ Materials/code for a [10 minute presentation](https://www.meetup.com/ai-portland
 Rocket League is a fast-paced game requiring quick reflexes, precise control, and strategic team play. This project explores three primary approaches to game and AI integration:
 
 ### 1. **Live Mechanics Coaching Feedback**
-   - Folder: [AICoachBakkesPlugin](./AICoachBakkesPlugin)
+   - Folder: [AICoachBakkesPlugin](./AICoachBakkesPlugin/README.md)
    - **Description**: Real-time analysis of player mechanics during matches.
    - [AI Dribble Coach](./AICoachBakkesPlugin/) - a [bakkesmod](https://github.com/bakkesmodorg/BakkesModSDK) plugin that uses Anthropic's Claude 3.5-Sonnet model providing live coaching feedback during tracked ground dribble practice in Rocket League. Using a custom Bakkesmod plugin, the AI evaluates ball and car positions in real time to deliver actionable insights on screen. ([recorded example](https://www.youtube.com/watch?v=vU-K88mYVAU) )
    - **Features**:
@@ -19,7 +19,7 @@ Rocket League is a fast-paced game requiring quick reflexes, precise control, an
      - Provide actionable feedback for air dribbling and flicks as well.
 
 ### 2. **Overall Strategy in Team Play Dynamics**
-   - Folder: [ReplayAnalysis](./ReplayAnalysis)
+   - Folder: [ReplayAnalysis](./ReplayAnalysis/README.md)
    - **Description**: Analysis of team coordination and strategy.
    - [Rattlebrain](https://github.com/scottleedavis/rattlebrain) - a command line tool written in rust that parses Rocket League replays into a data fromat usable by an LLM, and queries multiple AI providers (Google, Anthropic, OpenAI)
    - **Features**:
@@ -29,7 +29,7 @@ Rocket League is a fast-paced game requiring quick reflexes, precise control, an
    - **Goal**: Enhance team play cohesion and effectiveness.
 
 ### 3. **Individual Live Replay Analysis with Video and Audio Feedback**
-   - Folder: [ScreenShareFeedback](./ScreenShareFeedback)
+   - Folder: [ScreenShareFeedback](./ScreenShareFeedback/README.md)
    - **Description**: Post-game analysis tailored for individual players.
    - [Gemini 2.0 video stream analysis](https://aistudio.google.com/live) - Live replay analysis of the video stream and [CARL](https://lndrlndr.github.io/) statistics.  ([recorded example](https://www.youtube.com/watch?v=2OnrUEvSvAo))
    - **Features**:
