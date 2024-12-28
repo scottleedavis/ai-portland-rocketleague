@@ -6,18 +6,31 @@ import { handleChunkUpload, queryGemini } from './upload.mjs';
 const app = express();
 app.use(express.json());
 
-const upload = multer({ dest: '/tmp/' });
+const upload = multer({
+  storage: multer.memoryStorage(), // Store files in memory for processing
+  limits: { fileSize: 50 * 1024 * 1024 }, // Set file size limit to 50MB
+});
 
 app.post('/api/stream-chunk', upload.single('chunk'), async (req, res) => {
   try {
-    const chunkBuffer = req.file.buffer;
-    const sessionId = req.body.sessionId || 'default';
+    // Log received file
+    console.log('Received file:', req.file);
+
+    if (!req.file || !req.file.buffer) {
+      throw new Error('Invalid file received.');
+    }
+
+    const chunkBuffer = req.file.buffer; // Access chunk data
+    const sessionId = req.body.sessionId; // Retrieve sessionId from form data
     const uploadResult = await handleChunkUpload(chunkBuffer, sessionId);
-    res.json({ uploadResult });
+
+    res.status(200).json(uploadResult);
   } catch (error) {
+    console.error('Error processing chunk:', error);
     res.status(500).json({ error: error.message });
   }
 });
+
 
 app.post('/api/query-gemini', async (req, res) => {
   try {
