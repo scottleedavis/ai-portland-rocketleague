@@ -1,13 +1,13 @@
 import React from 'react';
 import VideoPlayer from './VideoPlayer';
 
-const App = () => {
+function App() {
   return (
     <div>
-      <h1>Screen and Audio Sharing App</h1>
+      <h1>Screen Share Feedback</h1>
       <VideoPlayer />
     </div>
   );
-};
+}
 
 export default App;
