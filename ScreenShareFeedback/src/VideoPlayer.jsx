@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { sendChunkToApi } from './api';
+import { sendChunkToApi, queryGemini } from './api';
 
 const VideoPlayer = () => {
   const videoRef = useRef(null);
   const mediaRecorder = useRef(null);
   const [sessionId, setSessionId] = useState('');
+  const [geminiResponse, setGeminiResponse] = useState(null);
 
   useEffect(() => {
     const initializeStream = async () => {
@@ -24,7 +25,14 @@ const VideoPlayer = () => {
           if (event.data && event.data.size > 0) {
             console.log('Sending chunk with size:', event.data.size);
             try {
-              await sendChunkToApi(event.data, sessionId);
+              const uploadResult = await sendChunkToApi(event.data, sessionId);
+              console.log('Chunk uploaded successfully:', uploadResult);
+
+              // Query Gemini after a chunk is uploaded
+              const prompt = 'Analyze this video stream for feedback';
+              const geminiResult = await queryGemini(uploadResult, prompt);
+              setGeminiResponse(geminiResult);
+              console.log('Gemini response:', geminiResult);
             } catch (error) {
               console.error('Error processing chunk:', error);
             }
@@ -72,6 +80,12 @@ const VideoPlayer = () => {
         <button onClick={startRecording}>Start Recording</button>
         <button onClick={stopRecording}>Stop Recording</button>
       </div>
+      {geminiResponse && (
+        <div>
+          <h2>Gemini Analysis:</h2>
+          <pre>{JSON.stringify(geminiResponse, null, 2)}</pre>
+        </div>
+      )}
     </div>
   );
 };

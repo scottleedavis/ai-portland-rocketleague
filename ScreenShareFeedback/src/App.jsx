@@ -4,7 +4,7 @@ import VideoPlayer from './VideoPlayer';
 function App() {
   return (
     <div>
-      <h1>Screen Share Feedback</h1>
+      <h1>Screen Share Feedback with Gemini</h1>
       <VideoPlayer />
     </div>
   );

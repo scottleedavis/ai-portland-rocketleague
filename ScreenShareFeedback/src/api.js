@@ -29,17 +29,29 @@ export const sendChunkToApi = async (chunk, sessionId) => {
   }
 };
 
-export const queryGeminiApi = async (uploadResult, prompt) => {
+export const queryGemini = async (uploadResult, prompt) => {
+  if (!uploadResult || !uploadResult.uri) {
+    throw new Error('Invalid upload result for querying Gemini');
+  }
+
+  const requestPayload = {
+    uploadResult,
+    prompt,
+  };
+
   try {
-    const response = await fetch('/api/query-gemini', {
+    const response = await fetch(`${API_BASE_URL}/api/query-gemini`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uploadResult, prompt }),
+      body: JSON.stringify(requestPayload),
     });
 
-    if (!response.ok) throw new Error('Failed to query Gemini.');
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
 
     const data = await response.json();
+    console.log('Gemini query response:', data);
     return data;
   } catch (error) {
     console.error('Error querying Gemini:', error);
