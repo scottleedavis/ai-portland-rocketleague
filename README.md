@@ -1,5 +1,5 @@
 # ai-portland-rocketleague
-Materials/code for a [10 minute presentation](https://www.meetup.com/ai-portland/events/303283141/?eventOrigin=group_upcoming_events) for an [AI Portland](https://creators.spotify.com/pod/show/superchargedbyai/) on using AI for Game analysis and coaching
+Materials/code for a [10 minute presentation](https://www.meetup.com/ai-portland/events/303283141/?eventOrigin=group_upcoming_events) for an [AI Portland](https://creators.spotify.com/pod/show/superchargedbyai/) on using AI for Game analysis and self-coaching
 
 
 
@@ -11,9 +11,11 @@ Rocket League is a fast-paced game requiring quick reflexes, precise control, an
    - **Description**: Real-time analysis of player mechanics during matches.
    - [AI Dribble Coach](./AICoachBakkesPlugin/) - a [bakkesmod](https://github.com/bakkesmodorg/BakkesModSDK) plugin that uses Anthropic's Claude 3.5-Sonnet model providing live coaching feedback during tracked ground dribble practice in Rocket League. Using a custom Bakkesmod plugin, the AI evaluates ball and car positions in real time to deliver actionable insights on screen. ([recorded example](https://www.youtube.com/watch?v=vU-K88mYVAU) )
    - **Features**:
-     - Identifies key mechanical skills such as dribbling, aerials, and rotations.
+     - Identifies the mechanical skill of ground dribbling.
      - Offers suggestions on optimal timing, positioning, and ball control.
-     - Provides immediate actionable advice to help players adjust their gameplay mid-match.
+     - Provides immediate actionable advice to help players adjust their mechanics during freeplay.
+   - **Goal**:
+     - Provide actionable feedback for air dribbling and flicks as well.
 
 ### 2. **Overall Strategy in Team Play Dynamics**
    - **Description**: Analysis of team coordination and strategy.

@@ -9,6 +9,13 @@
 build/*
 plugins/*
 .env
+rattletrap
+output/*.json
+output/*.md 
+output/*.csv 
+output/*.png 
+output/*.txt
+
 
 # Logs
 logs
