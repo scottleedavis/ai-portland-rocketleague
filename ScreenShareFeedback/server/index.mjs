@@ -1,25 +1,37 @@
-//// File: server/index.mjs
 import express from 'express';
+import ViteExpress from 'vite-express';
 import multer from 'multer';
 import { handleChunkUpload } from './upload.mjs';
-import ViteExpress from 'vite-express'
 
 const app = express();
-const upload = multer();
-
 app.use(express.json());
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 app.post('/api/stream-chunk', upload.single('chunk'), async (req, res) => {
   try {
-    const chunk = req.file;
-    const result = await handleChunkUpload(chunk);
-    res.json(result);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: 'Failed to process chunk.' });
+    const sessionId = req.body.sessionId;
+    const chunkBuffer = req.file.buffer;
+
+    const result = await handleChunkUpload(chunkBuffer, sessionId);
+    res.json({ fileUri: result.uri });
+  } catch (error) {
+    console.error('Error in /api/stream-chunk:', error);
+    res.status(500).json({ error: 'Failed to process chunk.' });
   }
 });
 
-const port = process.env.NODE_ENV === 'production' ? 8080 : 8000
+// app.post('/api/stream-complete', async (req, res) => {
+//   try {
+//     const { fileUri, prompt } = req.body;
+//     const result = await streamToGemini(fileUri, prompt);
+//     res.json(result);
+//   } catch (error) {
+//     console.error('Error in /api/stream-complete:', error);
+//     res.status(500).json({ error: 'Failed to complete stream.' });
+//   }
+// });
 
-ViteExpress.listen(app, port, () => console.log('Server is listening...'))
+const port = process.env.NODE_ENV === 'production' ? 8080 : 8000;
+
+ViteExpress.listen(app, port, () => console.log('Server is listening...'));
