@@ -21,3 +21,21 @@ export async function sendChunkToApi(chunkBuffer, sessionId) {
     console.error('Error uploading chunk:', error);
   }
 }
+
+export const queryGeminiApi = async (uploadResult, prompt) => {
+  try {
+    const response = await fetch('/api/query-gemini', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uploadResult, prompt }),
+    });
+
+    if (!response.ok) throw new Error('Failed to query Gemini.');
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error querying Gemini:', error);
+    throw error;
+  }
+};

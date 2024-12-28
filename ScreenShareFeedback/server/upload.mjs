@@ -1,10 +1,14 @@
 import { GoogleAIFileManager } from '@google/generative-ai/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
 
+
 const key = process.env.VITE_GEMINI_API_KEY;
 const fileManager = new GoogleAIFileManager(key);
+const genAI = new GoogleGenerativeAI(key);
 
 /**
  * Handles chunk upload for streaming data to Google Gemini.
@@ -49,6 +53,43 @@ export const handleChunkUpload = async (chunkBuffer, sessionId) => {
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }
+    throw error;
+  }
+};
+
+/**
+ * Queries Gemini with uploaded file data and user prompt.
+ *
+ * @param {Object} uploadResult - File metadata returned from the upload
+ * @param {string} prompt - User's query to Gemini
+ * @returns {Object} - Response from Gemini
+ */
+export const queryGemini = async (uploadResult, prompt) => {
+  try {
+    const req = [
+      { text: prompt },
+      {
+        fileData: {
+          mimeType: uploadResult.mimeType,
+          fileUri: uploadResult.uri,
+        },
+      },
+    ];
+
+    const result = await genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' }).generateContent(req);
+
+    if (result.error) {
+      console.error('Error querying Gemini:', result.error);
+      throw new Error(result.error);
+    }
+
+    return {
+      text: result.response.text(),
+      candidates: result.response.candidates,
+      feedback: result.response.promptFeedback,
+    };
+  } catch (error) {
+    console.error('Error querying Gemini:', error);
     throw error;
   }
 };

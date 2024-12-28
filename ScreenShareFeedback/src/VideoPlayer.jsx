@@ -1,40 +1,35 @@
-//// File: src/VideoPlayer.jsx
-import React, { useEffect, useRef } from 'react';
-import { sendChunkToApi } from './api';
+import React, { useRef, useEffect } from 'react';
+import { sendChunkToApi, queryGeminiApi } from './api';
 
 const VideoPlayer = () => {
   const videoRef = useRef(null);
+  const mediaRecorder = useRef(null);
 
   useEffect(() => {
-    const startCapture = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getDisplayMedia({
-          video: true,
-          audio: true,
-        });
-        const video = videoRef.current;
-        video.srcObject = stream;
+    const initStream = async () => {
+      const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+      videoRef.current.srcObject = stream;
 
-        const mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-        const chunks = [];
+      mediaRecorder.current = new MediaRecorder(stream, { mimeType: 'video/webm' });
+      mediaRecorder.current.ondataavailable = async (event) => {
+        try {
+          const chunkBuffer = event.data;
+          const uploadResult = await sendChunkToApi(chunkBuffer, 'session-id');
+          const prompt = 'Analyze this chunk'; // Example prompt
+          const geminiResponse = await queryGeminiApi(uploadResult, prompt);
+          console.log('Gemini Response:', geminiResponse);
+        } catch (error) {
+          console.error('Error processing chunk:', error);
+        }
+      };
 
-        mediaRecorder.ondataavailable = (event) => {
-          if (event.data.size > 0) {
-            chunks.push(event.data);
-            sendChunkToApi(event.data);
-          }
-        };
-
-        mediaRecorder.start(500); // Collect data every 500ms
-      } catch (err) {
-        console.error('Error starting capture:', err);
-      }
+      mediaRecorder.current.start(500); // Send chunks every 500ms
     };
 
-    startCapture();
+    initStream();
   }, []);
 
-  return <video ref={videoRef} autoPlay playsInline controls />;
+  return <video ref={videoRef} autoPlay />;
 };
 
 export default VideoPlayer;
