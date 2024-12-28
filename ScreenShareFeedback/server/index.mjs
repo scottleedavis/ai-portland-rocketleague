@@ -1,7 +1,9 @@
 import express from 'express';
 import ViteExpress from 'vite-express';
 import multer from 'multer';
-import { handleChunkUpload, queryGemini } from './upload.mjs';
+import { handleChunkUpload } from './upload.mjs';
+import { handleQueryGemini } from "./queryGemini.mjs";
+
 
 const app = express();
 app.use(express.json());
@@ -31,16 +33,17 @@ app.post('/api/stream-chunk', upload.single('chunk'), async (req, res) => {
   }
 });
 
-
-app.post('/api/query-gemini', async (req, res) => {
+app.post("/api/query-gemini", express.json(), async (req, res) => {
   try {
-    const { uploadResult, prompt } = req.body;
-    const geminiResponse = await queryGemini(uploadResult, prompt);
+    const { fileMetadata, prompt } = req.body;
+    const geminiResponse = await handleQueryGemini(fileMetadata, prompt);
     res.json(geminiResponse);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error querying Gemini:", error);
+    res.status(500).send("Error querying Gemini.");
   }
 });
+
 
 const port = process.env.NODE_ENV === 'production' ? 8080 : 8000;
 

@@ -1,50 +1,39 @@
-const API_BASE_URL = 'http://localhost:8000';
+const baseUrl = "http://localhost:8000/api";
 
 export const sendChunkToApi = async (chunk, sessionId) => {
-  if (!chunk || chunk.size === 0) {
-    console.warn('Cannot send empty or invalid chunk');
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append('chunk', chunk);
-  formData.append('sessionId', sessionId);
-
   try {
-    const response = await fetch(`${API_BASE_URL}/api/stream-chunk`, {
-      method: 'POST',
-      body: formData,
+    const response = await fetch(`${baseUrl}/stream-chunk`, {
+      method: "POST",
+      headers: { "Content-Type": "application/octet-stream", "Session-Id": sessionId },
+      body: chunk,
     });
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
-    const data = await response.json();
-    console.log('Chunk uploaded:', data);
-    return data;
+    return await response.json();
   } catch (error) {
-    console.error('Error sending chunk to API:', error);
+    console.error("Error sending chunk to API:", error);
     throw error;
   }
 };
 
-export const queryGemini = async (uploadResult, prompt) => {
-  const response = await fetch(`${API_BASE_URL}/api/query-gemini`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      fileUri: uploadResult.name,
-      mimeType: uploadResult.mimeType,
-      prompt,
-    }),
-  });
+export const queryGemini = async (fileMetadata, prompt) => {
+  try {
+    const response = await fetch(`${baseUrl}/query-gemini`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fileMetadata, prompt }),
+    });
 
-  if (!response.ok) {
-    throw new Error(`HTTP error! Status: ${response.status}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error querying Gemini:", error);
+    throw error;
   }
-
-  return response.json();
 };
