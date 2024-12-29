@@ -2,6 +2,7 @@
 
 ReplayAnalysis is a command-line tool written in Rust that parses Rocket League replay files into a format suitable for analysis by large language models (LLMs). It integrates with multiple AI providers, including Google, Anthropic, and OpenAI, to deliver comprehensive reports on team coordination and strategy.
 
+See the [example output](./examples/CAE7013011EFA9DB5C4584B38DA4222F.feedback.md)
 ## Features
 
 - **AI-Enhanced Analysis**: Utilizes AI services for in-depth insights into replay data.
