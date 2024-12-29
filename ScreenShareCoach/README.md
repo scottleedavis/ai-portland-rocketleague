@@ -32,6 +32,7 @@ ScreenShareCoach is a live coaching tool designed to provide real-time analysis 
    - Begin playing Rocket League or review replay footage.
    - Stream or screen-share your gameplay for live analysis.
   ```bash
+  export GEMINI_API_KEY=<your_google_gemini_api_key>
   npm run dev
   ```
 
