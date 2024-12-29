@@ -32,7 +32,7 @@ export const handleChunkUpload = async (chunkBuffer, sessionId) => {
       throw new Error(uploadResult.error || "Chunk upload failed.");
     }
 
-    console.log("Upload result:", uploadResult);
+    // console.log("Upload result:", uploadResult);
 
     // Validate and format fileUri
     if (!uploadResult.file.uri || !uploadResult.file.uri.startsWith("https://")) {
@@ -47,4 +47,19 @@ export const handleChunkUpload = async (chunkBuffer, sessionId) => {
     }
     throw error;
   }
-};
+}
+
+export const checkProgress = async fileId => {
+  const fileName = fileId.includes("files/")
+    ? fileId.split("files/")[1]
+    : fileId;
+  try {
+    // console.log(fileName);
+    const result = await fileManager.getFile(fileName);
+    // console.log(result);
+    return result
+  } catch (error) {
+    console.error(error)
+    return {error}
+  }
+}

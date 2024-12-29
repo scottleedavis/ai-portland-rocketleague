@@ -1,7 +1,10 @@
 const baseUrl = "http://localhost:8000/api";
 
-export const sendChunkToApi = async (chunk, sessionId) => {
-  console.log("Sending chunk to API:", { size: chunk.size, type: chunk.type });
+// const RECORD_FPS = 2;
+// const RECORD_CHUNK_MS = 1000 / RECORD_FPS;
+
+export const sendChunk = async (chunk, sessionId) => {
+  // console.log("Sending chunk to API:", { size: chunk.size, type: chunk.type });
 
   const formData = new FormData();
   formData.append("chunk", chunk);
@@ -24,6 +27,34 @@ export const sendChunkToApi = async (chunk, sessionId) => {
   }
 };
 
+export const checkChunkProgress = async fileId => {
+
+  const response = await fetch(`${baseUrl}/progress`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ fileId })
+  });
+  const resp = await response.json();
+
+  // console.log(resp.progress);
+
+  if (resp.progress.state === 'ACTIVE') {
+    // console.log('active found', resp.progress);
+    // setIsLoadingVideo(false)
+  } else if (resp.progress.state === 'FAILED') {
+    // setVideoError(true);
+    // console.log('chunk failed', resp.progress);
+  } else if (resp.progress.state == 'PROCESSING') {
+    // console.log('chunk processing', resp.progress);
+    // setTimeout(() => checkChunkProgress(fileId), RECORD_CHUNK_MS);
+
+  }
+  return resp.progress;
+
+}
 
 export const queryGemini = async (fileMetadata, prompt) => {
   try {

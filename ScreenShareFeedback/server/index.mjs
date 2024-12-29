@@ -1,7 +1,7 @@
 import express from 'express';
 import ViteExpress from 'vite-express';
 import multer from 'multer';
-import { handleChunkUpload } from './upload.mjs';
+import { handleChunkUpload, checkProgress } from './upload.mjs';
 import { handleQueryGemini } from "./queryGemini.mjs";
 
 
@@ -16,7 +16,7 @@ const upload = multer({
 app.post('/api/stream-chunk', upload.single('chunk'), async (req, res) => {
   try {
     // Log received file
-    console.log('Received file:', req.file);
+    // console.log('Received file:', req.file);
 
     if (!req.file || !req.file.buffer) {
       throw new Error('Invalid file received.');
@@ -32,6 +32,15 @@ app.post('/api/stream-chunk', upload.single('chunk'), async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+app.post('/api/progress', express.json(), async (req, res) => {
+  try {
+    const progress = await checkProgress(req.body.fileId)
+    res.json({progress})
+  } catch (error) {
+    res.status(500).json({error})
+  }
+})
 
 app.post("/api/query-gemini", express.json(), async (req, res) => {
   try {
