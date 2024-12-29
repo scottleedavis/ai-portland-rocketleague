@@ -19,7 +19,7 @@ pub async fn query_ai(match_guid: &str, focus: &str) -> io::Result<String> {
     // Combine all selected templates
     let instructions = "You are a world-class Rocket League team coach. You analyze data present in .csv files, understand trends, create data visualizations relevant to those trends, and share brief text summaries of observed trends. Your insights help improve team gameplay. Analyze team positioning, rotations, and overall synergy.".to_string();
 
-    let query = "Evaluate the replay on boost efficiency, aerial control, and shot accuracy using the csv files.  Each file is a csv file, which are linked by a column 'Frame'. Provide insights on situational awareness, risk/reward trade-offs, mechanical highlights, focused on team play, indentifying 1st,2nd,3rd 'main' roles.".to_string();
+    let query = "Evaluate the replay on boost efficiency, aerial control, and shot accuracy using the csv files.  The csv files are linked by a primary key column 'Frame'. Provide insights on situational awareness, risk/reward trade-offs, mechanical highlights.  Also focus on team play, indentifying dominant roles.".to_string();
 
 
     let mut responses = Vec::new();
