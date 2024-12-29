@@ -18,6 +18,7 @@ DribbleCoach is a BakkesMod plugin designed to provide real-time coaching feedba
    - Download the DribbleCoach plugin files from this repository.
    - Place the plugin files into the BakkesMod plugins directory.
    - Launch Rocket League and BakkesMod to load the plugin.
+   - Specify the anthropic_api_key in the main bakkesmod configuration.
 
 ## Usage
 
