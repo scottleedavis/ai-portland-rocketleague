@@ -1,0 +1,11 @@
+Cargo.lock
+target
+.env
+replay.json
+output/*.json
+output/*.csv
+output/*.png
+output/*.replay
+output/*.txt
+output/*.md
+rattletrap*
