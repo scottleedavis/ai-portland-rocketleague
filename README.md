@@ -7,8 +7,7 @@ Materials/code for a [10 minute presentation](https://www.meetup.com/ai-portland
 
 Rocket League is a fast-paced game requiring quick reflexes, precise control, and strategic team play. This project explores three primary approaches to game and AI integration:
 
-### 1. **Live Mechanics Coaching Feedback**
-   - Folder: [DribbleCoach](./DribbleCoach/README.md)
+### 1. [DribbleCoach](./DribbleCoach/README.md) **Live Mechanics Coaching Feedback**
    - **Description**: Real-time analysis of player mechanics during matches.
    - [AI Dribble Coach](./DribbleCoach/) - a [bakkesmod](https://github.com/bakkesmodorg/BakkesModSDK) plugin that uses Anthropic's Claude 3.5-Sonnet model providing live coaching feedback during tracked ground dribble practice in Rocket League. Using a custom Bakkesmod plugin, the AI evaluates ball and car positions in real time to deliver actionable insights on screen. ([recorded example](https://www.youtube.com/watch?v=vU-K88mYVAU) )
    - **Features**:
@@ -18,8 +17,7 @@ Rocket League is a fast-paced game requiring quick reflexes, precise control, an
    - **Goal**:
      - Provide actionable feedback for air dribbling and flicks as well.
 
-### 2. **Overall Strategy in Team Play Dynamics**
-   - Folder: [ReplayCoaches](./ReplayCoaches/README.md)
+### 2. [ReplayCoaches](./ReplayCoaches/README.md) **Overall Strategy in Team Play Dynamics**
    - **Description**: Analysis of team coordination and strategy by several AI providers.
    - [Rattlebrain](https://github.com/scottleedavis/rattlebrain) - a command line tool written in rust that parses Rocket League replays into a data fromat usable by an LLM, and queries multiple AI providers (Google, Anthropic, OpenAI)
    - **Features**:
@@ -28,8 +26,7 @@ Rocket League is a fast-paced game requiring quick reflexes, precise control, an
      - Suggests adjustments for better synergy and positioning.
    - **Goal**: Enhance team play cohesion and effectiveness.
 
-### 3. **Individual Live Replay Analysis with Video and Audio Feedback**
-   - Folder: [ScreenShareCoach](./ScreenShareCoach/README.md)
+### 3. [ScreenShareCoach](./ScreenShareCoach/README.md) **Individual Live Replay Analysis with Video and Audio Feedback**
    - **Description**: Live video stream analysis tailored for individual players.  (CARL, replay, spoken discussion, etc)
    - [Gemini 2.0 video stream analysis](https://aistudio.google.com/live) - Live replay analysis of the video stream and [CARL](https://lndrlndr.github.io/) statistics.  ([recorded example](https://www.youtube.com/watch?v=2OnrUEvSvAo))
    - **Features**:
