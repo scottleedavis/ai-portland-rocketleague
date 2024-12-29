@@ -18,7 +18,7 @@ Rocket League is a fast-paced game requiring quick reflexes, precise control, an
    - **Goal**:
      - Provide actionable feedback for air dribbling and flicks as well.
 
-### 2. **Overall Strategy in Team Play Dynamics: Swarm Feedback**
+### 2. **Overall Strategy in Team Play Dynamics**
    - Folder: [ReplayCoaches](./ReplayCoaches/README.md)
    - **Description**: Analysis of team coordination and strategy by several AI providers.
    - [Rattlebrain](https://github.com/scottleedavis/rattlebrain) - a command line tool written in rust that parses Rocket League replays into a data fromat usable by an LLM, and queries multiple AI providers (Google, Anthropic, OpenAI)
