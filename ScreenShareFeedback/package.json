@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "node --env-file=.env server/index.mjs",
+    "clean": "node --env-file=.env server/delete-all.mjs",
     "build": "vite build",
     "lint": "eslint ."
   },
