@@ -17,7 +17,7 @@ class AICoachBakkesPlugin: public BakkesMod::Plugin::BakkesModPlugin
 	std::thread server_thread;
 	std::vector<std::string> playbackData;
 	std::string TrimString(const std::string& input);
-
+	std::string joinWithUrlEncodedSpace(const std::vector<std::string>& params);
 
 public:
 	void onLoad() override;
@@ -26,4 +26,8 @@ public:
 	void OnRecordTick();
 	void AskAnthropic(std::string prompt);
 	void Render(CanvasWrapper canvas);
+    void onReplayAssistant();
+	void onQueryAssistant(std::vector<std::string> params);
+    void prepareReplay(const std::string& replayFilePath);
+	void queryReplayAssistant(const std::string& replayFileName, std::vector<std::string> params);
 };

@@ -3,7 +3,7 @@ name = "ReplayAssistant"
 version = "0.2.0"
 edition = "2021"
 authors = ["Scott Davis <scottleedavis@gmail.com>"]
-description = "A Rocket League replay OpenAI assistant"
+description = "A Rocket League replay OpenAI Assistant"
 
 [dependencies]
 csv = "1.1"

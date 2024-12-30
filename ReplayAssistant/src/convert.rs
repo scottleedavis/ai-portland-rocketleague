@@ -5,7 +5,6 @@ use std::collections::HashMap;
 use std::io::BufWriter;
 use std::path::Path;
 
-// Main function to analyze replay data
 pub fn convert_replay(data: Value, filename: &str) -> Result<(), Box<dyn std::error::Error>> {
     let output_dir = "output";
     fs::create_dir_all(output_dir)?;
@@ -37,20 +36,18 @@ fn sanitize_filename(filename: &str) -> String {
     Path::new(filename)
         .file_name()
         .map(|os_str| os_str.to_string_lossy().to_string())
-        .unwrap_or_else(|| "".to_string()) // Return an empty string if file_name() is None
+        .unwrap_or_else(|| "".to_string()) 
 }
 
 fn handle_header(data: &Value, filename: &str) -> Result<(), Box<dyn std::error::Error>> {
     let output_path = format!("output/{}.csv", sanitize_filename(filename));
     let mut file = File::create(output_path)?;
 
-    // Write CSV header row
     writeln!(
         file,
         "engine_version,licensee_version,patch_version,primary_player_team,team_0_score,team_1_score,team_size,unfair_team_size"
     )?;
 
-    // Extract values and write a single row
     let engine_version = data.get("engine_version").unwrap_or(&Value::Null).to_string();
     let licensee_version = data.get("licensee_version").unwrap_or(&Value::Null).to_string();
     let patch_version = data.get("patch_version").unwrap_or(&Value::Null).to_string();
@@ -60,7 +57,6 @@ fn handle_header(data: &Value, filename: &str) -> Result<(), Box<dyn std::error:
     let team_size = data.get("team_size").unwrap_or(&Value::Null).to_string();
     let unfair_team_size = data.get("unfair_team_size").unwrap_or(&Value::Null).to_string();
 
-    // Write the data row
     writeln!(
         file,
         "{},{},{},{},{},{},{},{}",
@@ -82,12 +78,10 @@ fn handle_goals(data: &Value, filename: &str) -> Result<(), Box<dyn std::error::
     let output_path = format!("output/{}.csv", sanitize_filename(filename));
     let mut file = File::create(output_path)?;
 
-    // Write CSV header row
     writeln!(file, "PlayerName,PlayerTeam,Frame")?;
 
-    // Define a stable default value for the array
     let empty_array: Vec<Value> = vec![];
-    let goals = data.as_array().unwrap_or(&empty_array); // Use the stable reference
+    let goals = data.as_array().unwrap_or(&empty_array);
 
     for goal in goals {
         let player_name = goal.get("PlayerName").unwrap_or(&Value::Null).to_string();
@@ -106,10 +100,8 @@ fn handle_highlights(data: &Value, filename: &str) -> Result<(), Box<dyn std::er
     let output_path = format!("output/{}.csv", sanitize_filename(filename));
     let mut file = File::create(output_path)?;
 
-    // Write CSV header row
     writeln!(file, "BallName,CarName,GoalActorName,Frame")?;
 
-    // Define a stable default value for the array
     let empty_array: Vec<Value> = vec![];
     let highlights = data.as_array().unwrap_or(&empty_array);
 
@@ -142,13 +134,11 @@ fn handle_player_stats(data: &Value, filename: &str) -> Result<(), Box<dyn std::
     let output_path = format!("output/{}.csv", sanitize_filename(filename));
     let mut file = File::create(output_path)?;
 
-    // Write CSV header row
     writeln!(
         file,
         "Name,Platform,Goals,Assists,Saves,Score,Shots,Team,bBot"
     )?;
 
-    // Define a stable default value for the array
     let empty_array: Vec<Value> = vec![];
     let players = data.as_array().unwrap_or(&empty_array);
 
@@ -207,7 +197,6 @@ pub fn parse_frames(data: &Value, file: &mut dyn Write) -> Result<(), Box<dyn st
 
     for (frame_index, frame) in frames.iter().enumerate() {
 
-        // let delta = frame.get("delta").unwrap_or(&Value::Null).to_string();
         let time = frame.get("time").unwrap_or(&Value::Null).to_string();
 
         if let Some(replications) = frame.get("replications").and_then(|r| r.as_array()) {
@@ -268,7 +257,6 @@ pub fn parse_frames(data: &Value, file: &mut dyn Write) -> Result<(), Box<dyn st
                                 car_map.insert(actor_id.clone(),value_int.to_string() );
                             }
                          } else if name == "TAGame.CarComponent_Boost_TA:ReplicatedBoost" {
-                            // Extract boost value
                             if let Some(value_int) = update
                                 .get("value")
                                 .and_then(|value| value.get("boost"))
@@ -332,32 +320,6 @@ pub fn parse_frames(data: &Value, file: &mut dyn Write) -> Result<(), Box<dyn st
 
                     } else if actor_id == ball_id {
 
-                    //     let location_x = spawned.pointer("/initialization/location/x")
-                    //         .and_then(Value::as_i64)
-                    //         .unwrap_or(0);
-                    //     let location_y = spawned.pointer("/initialization/location/y")
-                    //         .and_then(Value::as_i64)
-                    //         .unwrap_or(0);
-                    //     let location_z = spawned.pointer("/initialization/location/z")
-                    //         .and_then(Value::as_i64)
-                    //         .unwrap_or(0);
-
-                    //     let rotation_x = spawned.pointer("/initialization/rotation/x")
-                    //         .and_then(Value::as_f64)
-                    //         .unwrap_or(0.0);
-                    //     let rotation_y = spawned.pointer("/initialization/rotation/y")
-                    //         .and_then(Value::as_f64)
-                    //         .unwrap_or(0.0);
-                    //     let rotation_z = spawned.pointer("/initialization/rotation/z")
-                    //         .and_then(Value::as_f64)
-                    //         .unwrap_or(0.0);
-
-                    //     lines.push(format!(
-                    //         "{},,\"_ball_\",{},{},{},{},{},{},0.0,0,0,0,0.0,0.0,0.0",
-                    //         time, 
-                    //         location_x, location_y, location_z, 
-                    //         rotation_x, rotation_y, rotation_z
-                    //     ));
                     }
                 }
 
@@ -485,12 +447,6 @@ pub fn parse_frames(data: &Value, file: &mut dyn Write) -> Result<(), Box<dyn st
             }
         }
     }
-
-    // println!("Player Map: {:#?}", player_map);
-    // println!("Player Actor Map: {:#?}", player_actor_map);
-    // println!("Team Map: {:?}", team_map);
-    // println!("Car Map: {:#?}", car_map);
-    // println!("Boost Map: {:#?}", car_boost_map);
 
     let mut writer = BufWriter::new(file);
     for line in &lines {

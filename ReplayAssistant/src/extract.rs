@@ -5,26 +5,21 @@ use serde_json::{json, Value};
 use std::path::Path;
 use std::io::{Error, ErrorKind};
 
-
-/// Parses a Rocket League replay file using the `rattletrap` CLI and writes the result to a CSV file.
 pub fn extract_replay(input: &str) -> io::Result<String> {
     let rattletrap_name = "rattletrap";
     let rattletrap_path = Path::new(rattletrap_name);
 
-    // Check if rattletrap exists in PATH
     let rattletrap_exists = Command::new("which")
         .arg(rattletrap_name)
         .output()
         .map(|output| output.status.success())
         .unwrap_or(false);
 
-    // If not, download it locally
     if !rattletrap_exists && !rattletrap_path.exists() {
         println!("Rattletrap not found. Downloading...");
         let download_url = "https://github.com/tfausak/rattletrap/releases/download/14.1.0/rattletrap-14.1.0-linux-x64.tar.gz";
         let tar_file = "rattletrap-14.1.0-linux-x64.tar.gz";
 
-        // Download the tar.gz
         let wget_status = Command::new("wget")
             .arg("-q")
             .arg(download_url)
@@ -37,7 +32,6 @@ pub fn extract_replay(input: &str) -> io::Result<String> {
             ));
         }
 
-        // Extract the tar.gz
         let tar_status = Command::new("tar")
             .args(&["-xzf", tar_file])
             .status()?;
@@ -49,7 +43,6 @@ pub fn extract_replay(input: &str) -> io::Result<String> {
             ));
         }
 
-        // Make the binary executable
         let chmod_status = Command::new("chmod")
             .args(&["+x", rattletrap_name])
             .status()?;
@@ -62,11 +55,9 @@ pub fn extract_replay(input: &str) -> io::Result<String> {
         }
         println!("Rattletrap downloaded.");
 
-        // Cleanup tar.gz file
         fs::remove_file(tar_file)?;
     }
 
-    // Ensure the binary is executable
     if !rattletrap_path.exists() && !rattletrap_exists {
         return Err(Error::new(
             ErrorKind::NotFound,
@@ -82,7 +73,6 @@ pub fn extract_replay(input: &str) -> io::Result<String> {
 
     let json_output = format!("./output/{}.json", filename);
 
-    // Run the rattletrap command
     let output_status = Command::new(if rattletrap_exists {
         rattletrap_name
     } else {
@@ -168,7 +158,6 @@ fn parse_replay(data: Value, match_guid: String) -> Result<(), Box<dyn std::erro
     Ok(())
 }
 
-/// Parses the header into a structured JSON object.
 fn parse_header(data: &Value) -> Value {
     let properties = data.pointer("/header/body/properties/elements").unwrap_or(&Value::Null);
 
@@ -186,21 +175,20 @@ fn parse_header(data: &Value) -> Value {
 
 fn parse_goals(elements: &Value) -> Vec<Value> {
 
-    // Create a longer-lived empty vector
     let empty_vec = vec![];
     let goals_property = elements
         .as_array()
-        .unwrap_or(&empty_vec) // Use the longer-lived empty vector here
+        .unwrap_or(&empty_vec) 
         .iter()
         .find(|item| item.get(0).and_then(|v| v.as_str()) == Some("Goals"));
 
     let goals_array = goals_property
-        .and_then(|item| item.get(1)) // Access the second element in the "Goals" property
-        .and_then(|details| details.get("value")) // Access the "value" field
-        .and_then(|value| value.get("array")); // Access the "array" field
+        .and_then(|item| item.get(1)) 
+        .and_then(|details| details.get("value")) 
+        .and_then(|value| value.get("array")); 
 
     let parsed_goals = goals_array
-        .and_then(|array| array.as_array()) // Ensure it's an array
+        .and_then(|array| array.as_array())
         .map(|array| {
             array
                 .iter()
@@ -225,16 +213,16 @@ fn parse_goals(elements: &Value) -> Vec<Value> {
                 })
                 .collect()
         })
-        .unwrap_or_default(); // Default to an empty vector if parsing fails
+        .unwrap_or_default(); 
 
     parsed_goals
 }
 
 fn parse_player_stats(elements: &Value) -> Vec<Value> {
-    let empty_vec = vec![]; // Create a longer-lived empty vector
+    let empty_vec = vec![]; 
     let player_stats_property = elements
         .as_array()
-        .unwrap_or(&empty_vec) // Use the longer-lived empty vector
+        .unwrap_or(&empty_vec)
         .iter()
         .find(|item| item.get(0).and_then(|v| v.as_str()) == Some("PlayerStats"));
 
@@ -273,10 +261,10 @@ fn parse_player_stats(elements: &Value) -> Vec<Value> {
 }
 
 fn parse_highlights(elements: &Value) -> Vec<Value> {
-    let empty_vec = vec![]; // Create a longer-lived empty vector
+    let empty_vec = vec![];
     let highlights_property = elements
         .as_array()
-        .unwrap_or(&empty_vec) // Use the longer-lived empty vector
+        .unwrap_or(&empty_vec) 
         .iter()
         .find(|item| item.get(0).and_then(|v| v.as_str()) == Some("HighLights"));
 
@@ -314,13 +302,10 @@ fn parse_highlights(elements: &Value) -> Vec<Value> {
         .unwrap_or_default()
 }
 
-/// Saves frames to a JSON file and returns them.
 pub fn parse_frames(frames: &Value) -> Vec<Value> {
     // Return the frames as a Vec<Value>
     frames.as_array().cloned().unwrap_or_default()
 }
-
-
 
 fn find_property(array: &Value, key: &str) -> Option<Value> {
     array
@@ -337,7 +322,6 @@ fn find_property(array: &Value, key: &str) -> Option<Value> {
         })
 }
 
-/// Helper function to save a JSON object to a file.
 fn save_to_file(
     data: &Value,
     output_dir: &str,
@@ -349,4 +333,3 @@ fn save_to_file(
     println!("Saved: {}", file_path);
     Ok(())
 }
-
