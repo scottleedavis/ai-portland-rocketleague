@@ -32,7 +32,7 @@ replay_prepare
 
 free form prompt
 ```bash
-replay_prompt tell me how many times I hit the ball towards my own goal.l
+replay_prompt How many times did I hit the ball towards my own goal or it front of it?
 ```
 
 default prompt 
