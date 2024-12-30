@@ -45,8 +45,15 @@ def handle_replay(guid):
         return f"Command failed with error: {e}", 500
 
 
-@app.route('/query/<guid>/<query>', methods=['GET'])
-def handle_query(guid,query):
+@app.route('/query/<assistant_id>/', methods=['GET'])
+@app.route('/query/<assistant_id>/<query>', methods=['GET'])
+def query(assistant_id, query=None):
+
+    # asst_tJov44Av5EdGrdKrm2vLQL8p
+    if query:
+        return f"assistant_id: {assistant_id}, Query: {query}", 200
+    return f"assistant_id: {assistant_id}, No query provided", 200
+
     # # Construct the source and destination file paths
     # source_file = os.path.join(replays_path, guid + ".replay")
     # destination_file = os.path.join(replays_dest, guid + ".replay")
@@ -70,8 +77,7 @@ def handle_query(guid,query):
     #     subprocess.run(command, check=True, env=env) 
     # except subprocess.CalledProcessError as e:
     #     return f"Command failed with error: {e}", 500
-    
-    return f"Received request for replay with GUID: {guid} and query: {query}", 200
+
 
 
 if __name__ == '__main__':

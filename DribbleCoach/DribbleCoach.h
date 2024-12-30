@@ -32,5 +32,5 @@ public:
     void onReplayAssistant();
 	void onQueryAssistant(std::vector<std::string> params);
     void prepareReplay(const std::string& replayFilePath);
-	void queryReplayAssistant(const std::string& replayFileName, std::vector<std::string> params);
+	void queryReplayAssistant(std::vector<std::string> params);
 };

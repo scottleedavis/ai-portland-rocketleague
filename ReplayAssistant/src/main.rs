@@ -64,28 +64,20 @@ async fn main() {
 
         }
         "ai" => {
-            // if args.len() < 3 {
-            //     println!("Usage: ReplayAssistant ai <match_guid> [prompt]");
-            //     return;
-            // }
+            if args.len() < 3 {
+                println!("Usage: ReplayAssistant ai <assistant_id> [prompt]");
+                return;
+            }
 
-            // let match_guid = &args[2];
-            // // Set focus to "all" if not provided, otherwise pass the provided value
-            // let focus = if args.len() > 3 { &args[3] } else { "all" };
+            let assistant_id = &args[2];
+            // Set focus to "all" if not provided, otherwise pass the provided value
+            let prompt = if args.len() > 3 { &args[3] } else { "" };
 
-            // println!("Querying AI for insights...");
-            // match query::query_ai(match_guid, focus).await {
-            //     Ok(response) => {
-            //         let feedback_file_path = format!("./output/{}.feedback.md", match_guid);
-
-            //         // Save the AI response to the feedback file
-            //         match fs::write(&feedback_file_path, &response) {
-            //             Ok(_) => println!("Saved AI feedback: {}",feedback_file_path),
-            //             Err(e) => eprintln!("Failed to save AI feedback: {}", e),
-            //         }
-            //     }
-            //     Err(e) => eprintln!("Error querying AI: {}", e),
-            // }
+            println!("Querying AI for insights...");
+            match ai::prompt_assistant(assistant_id, prompt).await {
+                Ok(response) => println!("AI feedback: {}",response),
+                Err(e) => eprintln!("Error querying AI: {}", e),
+            }
         }
         _ => {
             println!("Unknown command: {}", command);

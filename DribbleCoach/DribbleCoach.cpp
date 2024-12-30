@@ -47,7 +47,7 @@ void DribbleCoach::onLoad()
 void DribbleCoach::onReplayAssistant()
 {
     ReplayServerWrapper gew = gameWrapper->GetGameEventAsReplay();
-    LOG("Preparing replay: " + gew.GetReplay().GetId().ToString());
+    LOG("Preparing replay: \n" + gew.GetReplay().GetId().ToString()+"\n");
     server_thread = std::thread(std::bind(&DribbleCoach::prepareReplay, this, gew.GetReplay().GetId().ToString()));
     server_thread.detach();
 }
@@ -55,8 +55,8 @@ void DribbleCoach::onReplayAssistant()
 void DribbleCoach::onQueryAssistant(std::vector<std::string> params)
 {
     ReplayServerWrapper gew = gameWrapper->GetGameEventAsReplay();
-    LOG("Prompting replay: " + gew.GetReplay().GetId().ToString());
-    server_thread = std::thread(std::bind(&DribbleCoach::queryReplayAssistant, this, gew.GetReplay().GetId().ToString(), params));
+    LOG("Prompting replay: \n" + gew.GetReplay().GetId().ToString()+"\n");
+    server_thread = std::thread(std::bind(&DribbleCoach::queryReplayAssistant, this, params));
     server_thread.detach();
 }
 
@@ -397,11 +397,11 @@ void DribbleCoach::prepareReplay(const std::string& replayFileName)
     WinHttpCloseHandle(hSession);
 
     replay_assistant_id = assistant_id;
-    LOG("Assistant created: "+assistant_id);
+    LOG("Assistant created: \n"+assistant_id+"\n");
 
 }
 
-void DribbleCoach::queryReplayAssistant(const std::string& replayFileName,std::vector<std::string> params) {
+void DribbleCoach::queryReplayAssistant(std::vector<std::string> params) {
 
     std::string query_text = joinWithUrlEncodedSpace(params);
 
@@ -430,9 +430,9 @@ void DribbleCoach::queryReplayAssistant(const std::string& replayFileName,std::v
         return;
     }
 
-    std::wstring wReplayFileName(replayFileName.begin(), replayFileName.end());  // Convert std::string to std::wstring
+    std::wstring wReplayAssistantId(replay_assistant_id.begin(), replay_assistant_id.end());  // Convert std::string to std::wstring
     std::wstring wReplayQuery(query_text.begin(), query_text.end());  // Convert std::string to std::wstring
-    std::wstring fullPath = L"/query/" + wReplayFileName +L"/" + wReplayQuery;                      // Concatenate the path
+    std::wstring fullPath = L"/query/" + wReplayAssistantId +L"/" + wReplayQuery;                      // Concatenate the path
 
     HINTERNET hRequest = WinHttpOpenRequest(
         hConnect,                               // Connection handle

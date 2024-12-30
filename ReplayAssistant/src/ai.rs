@@ -154,4 +154,25 @@ async fn generate_assistant(instructions: &str, files: &[String]) -> Result<Stri
 }
 
 
-    // const PROMPT: &str  = "Evaluate the replay on boost efficiency, aerial control, and shot accuracy using the csv files.  The csv files are linked by a primary key column 'Frame'. Provide insights on situational awareness, risk/reward trade-offs, mechanical highlights.  Also focus on team play, indentifying dominant roles.";
+const PROMPT: &str = "Evaluate the replay on boost efficiency, aerial control, and shot accuracy using the csv files. The csv files are linked by a primary key column 'Frame'. Provide insights on situational awareness, risk/reward trade-offs, mechanical highlights. Also focus on team play, identifying dominant roles.";
+
+pub async fn prompt_assistant(assistant_id: &str, prompt: &str) -> Result<String, Box<dyn Error>> {
+
+    if assistant_id.is_empty() {
+        return Err("Assistant ID is required.".into());
+    }
+
+    // Use the default prompt if none is provided
+    let prompt_to_use = if prompt.is_empty() {
+        PROMPT.to_string()
+    } else {
+        prompt.to_string()
+        // TODO URL decode is needed 
+    };
+
+    println!("Assistant ID: {}", assistant_id);
+    println!("Prompt: {}", prompt);
+
+
+    Ok("reponse".to_string())
+}
