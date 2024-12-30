@@ -9,8 +9,6 @@ Rocket League is a fast-paced game that demands quick reflexes, precise control,
 * **Mechanics Feedback:** Anthropic's Claude Sonnet 3.5 model was used to provide feedback on player mechanics during freeplay.
 * **Replay Prompt:** OpenAI's Assistant API was used for a replay prompt during replays.
 
-These AI tools enhance my personal gaming experience by delivering valuable feedback and analysis.
-
 ### 1. [DribbleCoach](./DribbleCoach/README.md) **: Mechanics Feedback**
 ![DribbleCoach.png](DribbleCoach.png)
    - **Description**:  Textual feedback of dribble mechanics using Anthropic's Claude during freeplay.
@@ -54,6 +52,14 @@ replay_prompt Evaluate the replay on boost efficiency, aerial control, and shot 
 - Foster better teamwork and communication within teams.
 - Deliver actionable, easy-to-understand insights to players of all skill levels.
 - Advance the use of AI in gaming to create a more immersive and educational experience.
+
+## Similar and Related Services/Projects
+* [polr](https://rldatacoach.com/polr-rocket-league-ai-coach/)
+* [trophi.ai](https://www.trophi.ai/rocket-league)
+* [carl](https://lndrlndr.github.io/)
+* [replay review plugin](https://bakkesplugins.com/plugins/view/173)
+* [ballchasing.com](https://ballchasing.com/)
+* [rocketleague.tracker.network/](https://rocketleague.tracker.network/)
 
 ## License
 
