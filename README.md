@@ -8,8 +8,7 @@ Rocket League is a fast-paced game requiring quick reflexes, precise control, an
 
 ### 1. [DribbleCoach](./DribbleCoach/README.md) **: Live Mechanics Feedback**
 ![DribbleCoach.png](DribbleCoach.png)
-   - **Description**: Real-time analysis of player mechanics during freeplay using a [bakkesmod](https://github.com/bakkesmodorg/BakkesModSDK) plugin that calls Anthropic's Claude 3.5-Sonnet model providing live coaching feedback during tracked ground dribble practice in Rocket League.  
-   - **Features**:
+   - **Description**:  Textual feedback of dribble mechanics using Anthropic's Claude during freeplay.
      - Identifies the mechanical skill of ground dribbling.
      - Offers simple suggestions on optimal timing, positioning, and ball control.
    - **ToDo**:
@@ -18,8 +17,8 @@ Rocket League is a fast-paced game requiring quick reflexes, precise control, an
 ### 2. [ReplayAssistant](./ReplayAssistant/README.md) **: Interactive Feedback on replay data**
 ![ReplayAssistantPrepare.png](ReplayAssistantPrepare.png)
 ![ReplayAssistantPrompt.png](ReplayAssistantPrompt.png)
-   - **Description**: Extracts replay binary data into CSVs repsenting goals, highlights, statistics and frames, uploads them to OpenAI files, creates an OpenAI assistant on the replay data, and seeds an initial prompt.
-   - available commands during replay
+   - **Description**: Extracts replay data and creates an OpenAI assistant available on the current replay.
+   - available commands
 
 prepare an OpenAI Assistant for the current replay
 ```bash
@@ -28,14 +27,17 @@ replay_prepare
 
 free form prompt
 ```bash
-replay_prompt tell me how many times I hit the ball. 
+replay_prompt tell me how many times I hit the ball towards my own goal.l
 ```
 
 default prompt 
 ```bash
 replay_prompt 
 ```
-* Evaluate the replay on boost efficiency, aerial control, and shot accuracy using the csv files.  The csv files are linked by a primary key column 'Frame'. Provide insights on situational awareness, risk/reward trade-offs, mechanical highlights.  Also focus on team play, indentifying dominant roles.
+equivalent to
+```bash
+replay_prompt Evaluate the replay on boost efficiency, aerial control, and shot accuracy using the csv files.  The csv files are linked by a primary key column 'Frame'. Provide insights on situational awareness, risk/reward trade-offs, mechanical highlights.  Also focus on team play, indentifying dominant roles.
+```
    - **ToDo**:
      - Finish replay_prompt
      - Provide ai response replay overlays
