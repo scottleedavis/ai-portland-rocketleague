@@ -9,7 +9,7 @@ Rocket League is a fast-paced game that demands quick reflexes, precise control,
 * **Mechanics Feedback:** Anthropic's Claude Sonnet 3.5 model was used to provide feedback on player mechanics during freeplay.
 * **Replay Prompt:** OpenAI's Assistant API was used for a replay prompt during replays.
 
-![Overview](Overview.png)
+![Overview](OverviewExample.png)
 
 ### 1. [DribbleCoach](./DribbleCoach/README.md) **: Mechanics Feedback**
 ![DribbleCoach.png](DribbleCoach.png)
