@@ -13,7 +13,7 @@ Rocket League is a fast-paced game requiring quick reflexes, precise control, an
      - Identifies the mechanical skill of ground dribbling.
      - Offers simple suggestions on optimal timing, positioning, and ball control.
    - **ToDo**:
-     - Provide actionable feedback for air dribbling and flicks as well.
+     - Provide air dribbling and flicks feedback as well.
 
 ### 2. [ReplayAssistant](./ReplayAssistant/README.md) **: Interactive Feedback on replay data**
 ![ReplayAssistantPrepare.png](ReplayAssistantPrepare.png)
@@ -23,7 +23,7 @@ Rocket League is a fast-paced game requiring quick reflexes, precise control, an
 
 prepare an OpenAI Assistant for the current replay
 ```bash
-replay_prepare # this command 
+replay_prepare
 ```
 
 free form prompt
@@ -36,7 +36,9 @@ default prompt
 replay_prompt 
 ```
 * Evaluate the replay on boost efficiency, aerial control, and shot accuracy using the csv files.  The csv files are linked by a primary key column 'Frame'. Provide insights on situational awareness, risk/reward trade-offs, mechanical highlights.  Also focus on team play, indentifying dominant roles.
-
+   - **ToDo**:
+     - Finish replay_prompt
+     - Provide ai response replay overlays
 
 ## Objectives
 
