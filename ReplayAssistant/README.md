@@ -14,9 +14,13 @@
      ```bash
      export OPENAI_API_KEY=<your_openai_api_key>
      ```
-4. Run ReplayAssistant:
+3. Test Single Run of ReplayAssistant:
      ```bash
       ./ReplayAssistant analyze ./examples/363cf8d9-8d7f-4c55-95a8-b97edbab0449.replay 
+     ```
+4. Run Server
+     ```bash
+     python server.py
      ```
 
 ## How It Works
