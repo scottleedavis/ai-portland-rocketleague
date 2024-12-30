@@ -39,7 +39,7 @@ default prompt
 ```bash
 replay_prompt 
 ```
-equivalent to
+default prompt is equivalent to
 ```bash
 replay_prompt Evaluate the replay on boost efficiency, aerial control, and shot accuracy using the csv files.  The csv files are linked by a primary key column 'Frame'. Provide insights on situational awareness, risk/reward trade-offs, mechanical highlights.  Also focus on team play, indentifying dominant roles.
 ```
