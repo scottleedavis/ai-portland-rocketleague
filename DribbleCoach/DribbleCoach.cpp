@@ -6,7 +6,7 @@
 #include <string>
 #include <sstream>
 
-#include "AICoachBakkesPlugin.h"
+#include "DribbleCoach.h"
 #include "bakkesmod/plugin/bakkesmodplugin.h"
 #include "bakkesmod/wrappers/GameEvent/TutorialWrapper.h"
 #include "bakkesmod/wrappers/GameEvent/ServerWrapper.h"
@@ -16,7 +16,7 @@
 #include "bakkesmod/wrappers/ControllerWrapper.h" 
 #include "bakkesmod/wrappers/ReplayServerWrapper.h"
 
-BAKKESMOD_PLUGIN(AICoachBakkesPlugin, "AI Dribble Coach", plugin_version, PLUGINTYPE_THREADED)
+BAKKESMOD_PLUGIN(DribbleCoach, "AI Dribble Coach", plugin_version, PLUGINTYPE_THREADED)
 
 bool isDribble = false;
 std::string query = "";
@@ -28,35 +28,36 @@ const std::string replay_prompt = "replay_prompt";
 std::string replay_assistant_id = "";
 std::string yonder_ai_text = "";
 
-void AICoachBakkesPlugin::onLoad()
+void DribbleCoach::onLoad()
 {
     _globalCvarManager = cvarManager;
     cvarManager->registerCvar("anthropic_api_key", "YOUR_SECRET_KEY", "API key for the Anthropic AI service", true);
-    //cvarManager->registerNotifier("ai_dribble", std::bind(&AICoachBakkesPlugin::OnCommand, this, std::placeholders::_1), "Starts/stops dribble analysis", PERMISSION_FREEPLAY);
-    cvarManager->registerNotifier(replay_prepare, std::bind(&AICoachBakkesPlugin::OnCommand, this, std::placeholders::_1), "Starts/stops replay analysis", PERMISSION_REPLAY);
-    cvarManager->registerNotifier(replay_prompt, std::bind(&AICoachBakkesPlugin::OnCommand, this, std::placeholders::_1), "Queries AI on current replay", PERMISSION_REPLAY);
+    cvarManager->registerNotifier(replay_prepare, std::bind(&DribbleCoach::OnCommand, this, std::placeholders::_1), "Starts/stops replay analysis", PERMISSION_REPLAY);
+    cvarManager->registerNotifier(replay_prompt, std::bind(&DribbleCoach::OnCommand, this, std::placeholders::_1), "Queries AI on current replay", PERMISSION_REPLAY);
 
-    gameWrapper->HookEvent("Function TAGame.Ball_TA.OnRigidBodyCollision", std::bind(&AICoachBakkesPlugin::OnDroppedBall, this, std::placeholders::_1));
+    gameWrapper->HookEvent("Function TAGame.Ball_TA.OnRigidBodyCollision", std::bind(&DribbleCoach::OnDroppedBall, this, std::placeholders::_1));
     resetKey = this->gameWrapper->GetFNameIndexByString("XboxTypeS_DPad_Up");
-    gameWrapper->RegisterDrawable(std::bind(&AICoachBakkesPlugin::Render, this, std::placeholders::_1));
+    gameWrapper->RegisterDrawable(std::bind(&DribbleCoach::Render, this, std::placeholders::_1));
     LOG("Loaded.");
 }
-void AICoachBakkesPlugin::onReplayAssistant()
+
+void DribbleCoach::onReplayAssistant()
 {
     ReplayServerWrapper gew = gameWrapper->GetGameEventAsReplay();
     LOG("Preparing replay: " + gew.GetReplay().GetId().ToString());
-    server_thread = std::thread(std::bind(&AICoachBakkesPlugin::prepareReplay, this, gew.GetReplay().GetId().ToString()));
-    server_thread.detach();
-}
-void AICoachBakkesPlugin::onQueryAssistant(std::vector<std::string> params)
-{
-    ReplayServerWrapper gew = gameWrapper->GetGameEventAsReplay();
-    LOG("Prompting replay: " + gew.GetReplay().GetId().ToString());
-    server_thread = std::thread(std::bind(&AICoachBakkesPlugin::queryReplayAssistant, this, gew.GetReplay().GetId().ToString(), params));
+    server_thread = std::thread(std::bind(&DribbleCoach::prepareReplay, this, gew.GetReplay().GetId().ToString()));
     server_thread.detach();
 }
 
-void AICoachBakkesPlugin::OnCommand(std::vector<std::string> params)
+void DribbleCoach::onQueryAssistant(std::vector<std::string> params)
+{
+    ReplayServerWrapper gew = gameWrapper->GetGameEventAsReplay();
+    LOG("Prompting replay: " + gew.GetReplay().GetId().ToString());
+    server_thread = std::thread(std::bind(&DribbleCoach::queryReplayAssistant, this, gew.GetReplay().GetId().ToString(), params));
+    server_thread.detach();
+}
+
+void DribbleCoach::OnCommand(std::vector<std::string> params)
 {
     std::string command = params.at(0);
         
@@ -68,7 +69,7 @@ void AICoachBakkesPlugin::OnCommand(std::vector<std::string> params)
     }
 }
 
-void AICoachBakkesPlugin::Render(CanvasWrapper canvas)
+void DribbleCoach::Render(CanvasWrapper canvas)
 {
     if (!gameWrapper->IsInFreeplay())
         return;
@@ -114,7 +115,7 @@ void AICoachBakkesPlugin::Render(CanvasWrapper canvas)
 
 }
 
-void AICoachBakkesPlugin::OnDroppedBall(std::string eventName)
+void DribbleCoach::OnDroppedBall(std::string eventName)
 {
     if (isDribble) {
         if (!gameWrapper->IsInFreeplay())
@@ -140,7 +141,7 @@ void AICoachBakkesPlugin::OnDroppedBall(std::string eventName)
             std::string output = "";
             for (unsigned int i = 0; i < playbackData.size(); i++) output += playbackData.at(i) + " ";
 
-            server_thread = std::thread(std::bind(&AICoachBakkesPlugin::AskAnthropic, this, output));
+            server_thread = std::thread(std::bind(&DribbleCoach::AskAnthropic, this, output));
             server_thread.detach();
 
             playbackData.clear();
@@ -152,7 +153,7 @@ void AICoachBakkesPlugin::OnDroppedBall(std::string eventName)
     this->OnRecordTick();
 }
 
-void AICoachBakkesPlugin::OnRecordTick()
+void DribbleCoach::OnRecordTick()
 {
     if (!isDribble)
         return;
@@ -176,14 +177,14 @@ void AICoachBakkesPlugin::OnRecordTick()
 
 }
 
-void AICoachBakkesPlugin::AskAnthropic(std::string prompt) {
+void DribbleCoach::AskAnthropic(std::string prompt) {
     const std::string url = "https://api.anthropic.com/v1/messages";
     const std::string data = "{\"model\": \"claude-3-5-sonnet-20241022\", \"max_tokens\": 8192,\"messages\": [{\"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
     std::string secret = cvarManager->getCvar("anthropic_api_key").getStringValue();
 
     LOG("Waiting....");
     HINTERNET hSession = WinHttpOpen(
-        L"AICoachBakkesPlugin/1.0",                 // User agent
+        L"DribbleCoach/1.0",                 // User agent
         WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,          // Access type
         WINHTTP_NO_PROXY_NAME,                      // Proxy name
         WINHTTP_NO_PROXY_BYPASS,                    // Proxy bypass
@@ -279,12 +280,12 @@ void AICoachBakkesPlugin::AskAnthropic(std::string prompt) {
 
 }
 
-void AICoachBakkesPlugin::prepareReplay(const std::string& replayFileName)
+void DribbleCoach::prepareReplay(const std::string& replayFileName)
 {
 
     LOG("Waiting....");
     HINTERNET hSession = WinHttpOpen(
-        L"AICoachBakkesPlugin/1.0",                 // User agent
+        L"DribbleCoach/1.0",                 // User agent
         WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,          // Access type
         WINHTTP_NO_PROXY_NAME,                      // Proxy name
         WINHTTP_NO_PROXY_BYPASS,                    // Proxy bypass
@@ -384,14 +385,14 @@ void AICoachBakkesPlugin::prepareReplay(const std::string& replayFileName)
 
 }
 
-void AICoachBakkesPlugin::queryReplayAssistant(const std::string& replayFileName,std::vector<std::string> params) {
+void DribbleCoach::queryReplayAssistant(const std::string& replayFileName,std::vector<std::string> params) {
     // if params size is zero, send a get request to localhost:3000/query/<guid>
     // if params size is > zero, join them all with a single space urlecoded (i think %20), and send to localhost:3000/query/<guid>/<the_joined_params>
     std::string query_text = joinWithUrlEncodedSpace(params);
 
     LOG("Waiting....");
     HINTERNET hSession = WinHttpOpen(
-        L"AICoachBakkesPlugin/1.0",                 // User agent
+        L"DribbleCoach/1.0",                 // User agent
         WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,          // Access type
         WINHTTP_NO_PROXY_NAME,                      // Proxy name
         WINHTTP_NO_PROXY_BYPASS,                    // Proxy bypass
@@ -491,7 +492,7 @@ void AICoachBakkesPlugin::queryReplayAssistant(const std::string& replayFileName
 }
 
 
-std::string AICoachBakkesPlugin::TrimString(const std::string& input) {
+std::string DribbleCoach::TrimString(const std::string& input) {
     size_t startPos = input.find("\"text\":"); 
     if (startPos == std::string::npos) {
         return ""; 
@@ -507,7 +508,7 @@ std::string AICoachBakkesPlugin::TrimString(const std::string& input) {
     return yonder_ai_text;
 }
 
-std::string AICoachBakkesPlugin::joinWithUrlEncodedSpace(const std::vector<std::string>& params) {
+std::string DribbleCoach::joinWithUrlEncodedSpace(const std::vector<std::string>& params) {
     if (params.empty()) {
         return "";  // Return empty string if the vector is empty
     }

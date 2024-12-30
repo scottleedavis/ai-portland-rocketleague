@@ -75,7 +75,7 @@
     <ClCompile Include="pch.cpp">
       <Filter>PCH</Filter>
     </ClCompile>
-    <ClCompile Include="AICoachBakkesPlugin.cpp">
+    <ClCompile Include="DribbleCoach.cpp">
       <Filter>Plugin\src</Filter>
     </ClCompile>
     <ClCompile Include="GuiBase.cpp">
@@ -131,7 +131,7 @@
     <ClInclude Include="pch.h">
       <Filter>PCH</Filter>
     </ClInclude>
-    <ClInclude Include="AICoachBakkesPlugin.h">
+    <ClInclude Include="DribbleCoach.h">
       <Filter>Plugin\header</Filter>
     </ClInclude>
     <ClInclude Include="logging.h">
@@ -142,7 +142,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="AICoachBakkesPlugin.rc">
+    <ResourceCompile Include="DribbleCoach.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
