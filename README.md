@@ -6,8 +6,8 @@ Materials/code for a [10 minute presentation](https://www.meetup.com/ai-portland
 
 Rocket League is a fast-paced game that demands quick reflexes, precise control, and strategic team play. This project explores two primary approaches to integrating game mechanics with AI:
 
-* **Mechanics Feedback:** Anthropic's Claude Sonnet 3.5 model was used to provide real-time feedback on player mechanics.
-* **Replay Prompt:** OpenAI's Assistant API was utilized for in-depth replay analysis with freeform prompts in-replay.
+* **Mechanics Feedback:** Anthropic's Claude Sonnet 3.5 model was used to provide feedback on player mechanics during freeplay.
+* **Replay Prompt:** OpenAI's Assistant API was used for a replay prompt during replays.
 
 These AI tools enhance my personal gaming experience by delivering valuable feedback and analysis.
 
