@@ -6,12 +6,12 @@ Materials/code for a [10 minute presentation](https://www.meetup.com/ai-portland
 
 Rocket League is a fast-paced game that demands quick reflexes, precise control, and strategic team play. This project explores two primary approaches to integrating game mechanics with AI:
 
-* **Live Mechanics Feedback:** Anthropic's Claude Sonnet 3.5 model was used to provide real-time feedback on player mechanics.
-* **Replay prompting:** OpenAI's Assistant API was utilized for in-depth replay analysis with freeform prompts in-replay.
+* **Mechanics Feedback:** Anthropic's Claude Sonnet 3.5 model was used to provide real-time feedback on player mechanics.
+* **Replay Prompt:** OpenAI's Assistant API was utilized for in-depth replay analysis with freeform prompts in-replay.
 
 These AI tools enhance my personal gaming experience by delivering valuable feedback and analysis.
 
-### 1. [DribbleCoach](./DribbleCoach/README.md) **: Live Mechanics Feedback**
+### 1. [DribbleCoach](./DribbleCoach/README.md) **: Mechanics Feedback**
 ![DribbleCoach.png](DribbleCoach.png)
    - **Description**:  Textual feedback of dribble mechanics using Anthropic's Claude during freeplay.
      - Identifies the mechanical skill of ground dribbling.
@@ -19,7 +19,7 @@ These AI tools enhance my personal gaming experience by delivering valuable feed
    - **ToDo**:
      - Provide air dribbling and flicks feedback as well.
 
-### 2. [ReplayAssistant](./ReplayAssistant/README.md) **: Interactive Feedback on replay data**
+### 2. [ReplayAssistant](./ReplayAssistant/README.md) **: Replay Prompt**
 ![ReplayAssistantPrepare.png](ReplayAssistantPrepare.png)
 ![ReplayAssistantPrompt.png](ReplayAssistantPrompt.png)
    - **Description**: Extracts replay data and creates an OpenAI assistant available on the current replay.
