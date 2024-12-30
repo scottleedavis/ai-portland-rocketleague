@@ -18,7 +18,7 @@
 
 BAKKESMOD_PLUGIN(DribbleCoach, "AI Dribble Coach", plugin_version, PLUGINTYPE_THREADED)
 
-bool isDribble = false;
+bool isDribblen = false;
 std::string query = "";
 std::shared_ptr<CVarManagerWrapper> _globalCvarManager;
 const std::string le_prompt = "checking out this replay of a car and ball practicing dribbling, until it touches ground. Give a brief one sentence recommendation to the player saying what was done well and/or what could improve.  Make your response no longer than nine words.";
@@ -96,7 +96,7 @@ void DribbleCoach::Render(CanvasWrapper canvas)
 
         ball.SetLocation(car.GetLocation() + addToBall);
         ball.SetVelocity(playerVelocity);
-        isDribble = true;
+        isDribblen = true;
         yonder_ai_text = "";
 
         playbackData.push_back(le_prompt);
@@ -117,7 +117,7 @@ void DribbleCoach::Render(CanvasWrapper canvas)
 
 void DribbleCoach::OnDroppedBall(std::string eventName)
 {
-    if (isDribble) {
+    if (isDribblen) {
         if (!gameWrapper->IsInFreeplay())
             return;
         ServerWrapper tutorial = gameWrapper->GetGameEventAsServer();
@@ -135,7 +135,7 @@ void DribbleCoach::OnDroppedBall(std::string eventName)
         // Ball is near or on the ground
         if (ballLocation.Z <= 94) {
 
-            isDribble = false;
+            isDribblen = false;
             LOG("Querying AI...");
 
             std::string output = "";
@@ -155,7 +155,7 @@ void DribbleCoach::OnDroppedBall(std::string eventName)
 
 void DribbleCoach::OnRecordTick()
 {
-    if (!isDribble)
+    if (!isDribblen)
         return;
 
     ServerWrapper server = gameWrapper->GetGameEventAsServer();
