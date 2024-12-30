@@ -11,11 +11,12 @@ Rocket League is a fast-paced game that demands quick reflexes, precise control,
 
 ### 1. [DribbleCoach](./DribbleCoach/README.md) **: Mechanics Feedback**
 ![DribbleCoach.png](DribbleCoach.png)
-   - **Description**:  Textual feedback of dribble mechanics using Anthropic's Claude during freeplay.
-     - Identifies the mechanical skill of ground dribbling.
+   - **Description**:  Textual feedback of ground and air dribble mechanics using Anthropic's Claude during freeplay.
+     - Identifies and tracks the mechanical skill of ground and air dribbling.
      - Offers simple suggestions on optimal timing, positioning, and ball control.
    - **ToDo**:
-     - Provide air dribbling and flicks feedback as well.
+     - Fine-tune air dribbling tracking.
+     - Provide flick feedback.
 
 ### 2. [ReplayAssistant](./ReplayAssistant/README.md) **: Replay Prompt**
 ![ReplayAssistantPrepare.png](ReplayAssistantPrepare.png)

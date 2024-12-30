@@ -13,7 +13,10 @@ class DribbleCoach: public BakkesMod::Plugin::BakkesModPlugin
 	//,public SettingsWindowBase // Uncomment if you wanna render your own tab in the settings menu
 	//,public PluginWindowBase // Uncomment if you want to render your own plugin window
 {
-	int resetKey;
+	int groundDribbleResetKey;
+	int airDribbleResetKey1;
+	int airDribbleResetKey2;
+	int airDribbleResetKey3;
 	std::thread server_thread;
 	std::vector<std::string> playbackData;
 	std::string TrimString(const std::string& input);

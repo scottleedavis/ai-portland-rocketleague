@@ -16,13 +16,13 @@
 #include "bakkesmod/wrappers/ControllerWrapper.h" 
 #include "bakkesmod/wrappers/ReplayServerWrapper.h"
 
-BAKKESMOD_PLUGIN(DribbleCoach, "AI Dribble Coach", plugin_version, PLUGINTYPE_THREADED)
+BAKKESMOD_PLUGIN(DribbleCoach, "DribbleCoach", plugin_version, PLUGINTYPE_THREADED)
 
 bool isDribblen = false;
 std::string query = "";
 std::shared_ptr<CVarManagerWrapper> _globalCvarManager;
 const std::string le_prompt = "checking out this replay of a car and ball practicing dribbling, until it touches ground. Give a brief one sentence recommendation to the player saying what was done well and/or what could improve.  Make your response no longer than nine words.";
-const std::string data_row_header = "time, car_x, car_y, car_z, ball_x, ball_y, ball_z";
+const std::string data_row_header = "time, car_x, car_y, car_z, car_pitch, car_roll, car_yaw, ball_x, ball_y, ball_z";
 const std::string replay_prepare = "replay_prepare";
 const std::string replay_prompt = "replay_prompt";
 std::string replay_assistant_id = "";
@@ -36,7 +36,10 @@ void DribbleCoach::onLoad()
     cvarManager->registerNotifier(replay_prompt, std::bind(&DribbleCoach::OnCommand, this, std::placeholders::_1), "Queries AI on current replay", PERMISSION_REPLAY);
 
     gameWrapper->HookEvent("Function TAGame.Ball_TA.OnRigidBodyCollision", std::bind(&DribbleCoach::OnDroppedBall, this, std::placeholders::_1));
-    resetKey = this->gameWrapper->GetFNameIndexByString("XboxTypeS_DPad_Up");
+    groundDribbleResetKey = this->gameWrapper->GetFNameIndexByString("XboxTypeS_DPad_Up");
+    airDribbleResetKey1 = this->gameWrapper->GetFNameIndexByString("XboxTypeS_DPad_Down");
+    airDribbleResetKey2 = this->gameWrapper->GetFNameIndexByString("XboxTypeS_DPad_Left");
+    airDribbleResetKey3 = this->gameWrapper->GetFNameIndexByString("XboxTypeS_DPad_Right");
     gameWrapper->RegisterDrawable(std::bind(&DribbleCoach::Render, this, std::placeholders::_1));
     LOG("Loaded.");
 }
@@ -85,8 +88,7 @@ void DribbleCoach::Render(CanvasWrapper canvas)
     if (ball.IsNull() || car.IsNull())
         return;
 
-    // Detect if dribble reset
-    if (gameWrapper->IsKeyPressed(resetKey)) {
+    if (gameWrapper->IsKeyPressed(groundDribbleResetKey)) {
 
         Vector playerVelocity = car.GetVelocity();
         Vector addToBall = Vector(playerVelocity.X, playerVelocity.Y, 170);
@@ -99,11 +101,27 @@ void DribbleCoach::Render(CanvasWrapper canvas)
         isDribblen = true;
         yonder_ai_text = "";
 
+        playbackData.clear();
         playbackData.push_back(le_prompt);
         playbackData.push_back(data_row_header);
 
         this->OnRecordTick();
-        //gameWrapper->UnregisterDrawables();
+
+        return;
+    }
+    else if (gameWrapper->IsKeyPressed(airDribbleResetKey1) ||
+        gameWrapper->IsKeyPressed(airDribbleResetKey2) ||
+        gameWrapper->IsKeyPressed(airDribbleResetKey3)) {
+
+        isDribblen = true;
+        yonder_ai_text = "";
+
+        playbackData.clear();
+        playbackData.push_back(le_prompt);
+        playbackData.push_back(data_row_header);
+
+        this->OnRecordTick();
+
         return;
     }
 
@@ -145,8 +163,6 @@ void DribbleCoach::OnDroppedBall(std::string eventName)
             server_thread.detach();
 
             playbackData.clear();
-            playbackData.push_back(le_prompt);
-            playbackData.push_back(data_row_header);
 
         }
     }
@@ -171,8 +187,8 @@ void DribbleCoach::OnRecordTick()
     CarWrapper car = tutorial.GetGameCar();
     if (ball.IsNull() || car.IsNull())
         return;
-
-    std::string data_string = std::to_string(server.GetSecondsElapsed()) + "," + std::to_string(car.GetLocation().X) + "," + std::to_string(car.GetLocation().Y) + "," + std::to_string(car.GetLocation().Z) + "," + std::to_string(ball.GetLocation().X) + "," + std::to_string(ball.GetLocation().Y) + "," + std::to_string(ball.GetLocation().Z);
+    
+    std::string data_string = std::to_string(server.GetSecondsElapsed()) + "," + std::to_string(car.GetLocation().X) + "," + std::to_string(car.GetLocation().Y) + "," + std::to_string(car.GetLocation().Z) + "," + std::to_string(car.GetRotation().Pitch) + "," + std::to_string(car.GetRotation().Roll) + "," + std::to_string(car.GetRotation().Yaw) + "," + std::to_string(ball.GetLocation().X) + "," + std::to_string(ball.GetLocation().Y) + "," + std::to_string(ball.GetLocation().Z);
     playbackData.push_back(data_string);
 
 }
