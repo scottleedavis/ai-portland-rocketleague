@@ -23,7 +23,8 @@ These AI tools enhance my personal gaming experience by delivering valuable feed
 ![ReplayAssistantPrepare.png](ReplayAssistantPrepare.png)
 ![ReplayAssistantPrompt.png](ReplayAssistantPrompt.png)
    - **Description**: Extracts replay data and creates an OpenAI assistant available on the current replay.
-   - available commands
+
+available commands
 
 prepare an OpenAI Assistant for the current replay
 ```bash
