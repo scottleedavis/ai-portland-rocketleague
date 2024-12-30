@@ -1,7 +1,6 @@
 # ai-portland-rocketleague
 Materials/code for a [10 minute presentation](https://www.meetup.com/ai-portland/events/303283141/?eventOrigin=group_upcoming_events) for an [AI Portland](https://creators.spotify.com/pod/show/superchargedbyai/) on using AI for Game analysis and self-coaching
 
-See the [TODOs](TODO.md) prior to presentation
 
 ## Overview
 
@@ -33,14 +32,11 @@ replay_prompt tell me how many times I hit the ball.
 ```
 
 default prompt 
-* Evaluate the replay on boost efficiency, aerial control, and shot accuracy using the csv files.  The csv files are linked by a primary key column 'Frame'. Provide insights on situational awareness, risk/reward trade-offs, mechanical highlights.  Also focus on team play, indentifying dominant roles.
 ```bash
 replay_prompt 
 ```
-      * 
+* Evaluate the replay on boost efficiency, aerial control, and shot accuracy using the csv files.  The csv files are linked by a primary key column 'Frame'. Provide insights on situational awareness, risk/reward trade-offs, mechanical highlights.  Also focus on team play, indentifying dominant roles.
 
-   - **ToDo**:
-     - create replay_prompt using created assistant
 
 ### 3. [ScreenShareCoach](./ScreenShareCoach/README.md) **: Live Replay with Video and Audio Feedback**
    - **Description**: Live video stream analysis tailored for individual players.  (CARL, replay, spoken discussion, etc)
