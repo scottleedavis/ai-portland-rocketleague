@@ -44,7 +44,6 @@ cd ReplayAssistant
 ```
 #### Building
 
-linux & mac & windows binaries
 ```bash
 cargo build --release
 # cross build --release --target x86_64-apple-darwin
