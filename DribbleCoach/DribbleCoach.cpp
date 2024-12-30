@@ -402,8 +402,7 @@ void DribbleCoach::prepareReplay(const std::string& replayFileName)
 }
 
 void DribbleCoach::queryReplayAssistant(const std::string& replayFileName,std::vector<std::string> params) {
-    // if params size is zero, send a get request to localhost:3000/query/<guid>
-    // if params size is > zero, join them all with a single space urlecoded (i think %20), and send to localhost:3000/query/<guid>/<the_joined_params>
+
     std::string query_text = joinWithUrlEncodedSpace(params);
 
     LOG("Waiting....");
