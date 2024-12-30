@@ -56,6 +56,7 @@ replay_prompt Evaluate the replay on boost efficiency, aerial control, and shot 
 ## Similar and Related Services/Projects
 * [polr](https://rldatacoach.com/polr-rocket-league-ai-coach/)
 * [trophi.ai](https://www.trophi.ai/rocket-league)
+* [bakkesmod](https://bakkesmod.com/)
 * [carl](https://lndrlndr.github.io/)
 * [replay review plugin](https://bakkesplugins.com/plugins/view/173)
 * [ballchasing.com](https://ballchasing.com/)
