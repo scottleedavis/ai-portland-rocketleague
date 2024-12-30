@@ -8,7 +8,7 @@ Rocket League is a fast-paced game requiring quick reflexes, precise control, an
 
 ### 1. [DribbleCoach](./DribbleCoach/README.md) **: Live Mechanics Feedback**
 ![DribbleCoach.png](DribbleCoach.png)
-   - **Description**: Real-time analysis of player mechanics during freeplay using a [bakkesmod](https://github.com/bakkesmodorg/BakkesModSDK) plugin that calls Anthropic's Claude 3.5-Sonnet model providing live coaching feedback during tracked ground dribble practice in Rocket League.  ([recorded example](https://www.youtube.com/watch?v=vU-K88mYVAU) )
+   - **Description**: Real-time analysis of player mechanics during freeplay using a [bakkesmod](https://github.com/bakkesmodorg/BakkesModSDK) plugin that calls Anthropic's Claude 3.5-Sonnet model providing live coaching feedback during tracked ground dribble practice in Rocket League.  
    - **Features**:
      - Identifies the mechanical skill of ground dribbling.
      - Offers simple suggestions on optimal timing, positioning, and ball control.
@@ -37,11 +37,6 @@ replay_prompt
 ```
 * Evaluate the replay on boost efficiency, aerial control, and shot accuracy using the csv files.  The csv files are linked by a primary key column 'Frame'. Provide insights on situational awareness, risk/reward trade-offs, mechanical highlights.  Also focus on team play, indentifying dominant roles.
 
-
-### 3. [ScreenShareCoach](./ScreenShareCoach/README.md) **: Live Replay with Video and Audio Feedback**
-   - **Description**: Live video stream analysis tailored for individual players.  (CARL, replay, spoken discussion, etc)
-   - [Gemini 2.0 video stream analysis](https://aistudio.google.com/live) - Live replay analysis of the video stream and [CARL](https://lndrlndr.github.io/) statistics.  ([recorded example](https://www.youtube.com/watch?v=2OnrUEvSvAo))
-   - **Goal**: Help players understand their strengths and areas for improvement through detailed, context-rich spoken feedback to live replay data.s
 
 ## Objectives
 
