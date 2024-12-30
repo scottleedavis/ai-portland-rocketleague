@@ -17,10 +17,12 @@ Rocket League is a fast-paced game requiring quick reflexes, precise control, an
 
 ### 2. [ReplayAssistant](./ReplayAssistant/README.md) **: Interactive Feedback on replay data**
    - **Description**: Extracts replay binary data into CSVs repsenting goals, highlights, statistics and frames, uploads them to OpenAI files, creates an OpenAI assistant on the replay data, and seeds an initial prompt.
-   - - __Assistant Instructions:__
-   - - - You are a world-class Rocket League team coach. You analyze data present in .csv files, understand trends, create data visualizations relevant to those trends, and share brief text summaries of observed trends. Your insights help improve team gameplay. Analyze team positioning, rotations, and overall synergy.
-   - - __Initial Prompt:__
-   - - - Evaluate the replay on boost efficiency, aerial control, and shot accuracy using the csv files.  The csv files are linked by a primary key column 'Frame'. Provide insights on situational awareness, risk/reward trade-offs, mechanical highlights.  Also focus on team play, indentifying dominant roles.
+   - __Assistant Instructions:__
+      * You are a world-class Rocket League team coach. You analyze data present in .csv files, understand trends, create data visualizations relevant to those trends, and share brief text summaries of observed trends. Your insights help improve team gameplay. Analyze team positioning, rotations, and overall synergy.
+
+   - __Initial Prompt:__
+      * Evaluate the replay on boost efficiency, aerial control, and shot accuracy using the csv files.  The csv files are linked by a primary key column 'Frame'. Provide insights on situational awareness, risk/reward trade-offs, mechanical highlights.  Also focus on team play, indentifying dominant roles.
+
    - **ToDo**:
      - Link to actively played replay in rocket league
 
