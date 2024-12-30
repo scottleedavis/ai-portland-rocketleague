@@ -1,5 +1,5 @@
 [package]
-name = "replayassistant"
+name = "ReplayAssistant"
 version = "0.2.0"
 edition = "2021"
 authors = ["Scott Davis <scottleedavis@gmail.com>"]
@@ -9,7 +9,7 @@ description = "A Rocket League replay OpenAI assistant"
 csv = "1.1"
 serde = { version = "1.0", features = ["derive"] }
 tokio = { version = "1", features = ["full"] }
-reqwest = { version = "0.11", features = ["json", "multipart"] }
+reqwest = { version = "0.11", features = ["blocking","json", "multipart"] }
 dotenv = "0.15"
 serde_json = "1.0"
 jsonschema = "0.16"
@@ -19,5 +19,5 @@ base64 = "0.21"     # For Base64 encoding
 glob = "0.3"
 
 [lib]
-name = "replayassistant"
+name = "ReplayAssistant"
 path = "src/lib.rs"

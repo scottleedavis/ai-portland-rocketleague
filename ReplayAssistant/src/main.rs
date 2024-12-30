@@ -16,7 +16,7 @@ async fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2 {
-        println!("Usage: replayassistant <command> [options]");
+        println!("Usage: ReplayAssistant <command> [options]");
         println!("Commands:");
         println!(" analysis <path/some.replay> - Analyze replay data. (runs extract->convert->plot->query)");
         println!(" query <match_guid> [focus] - Query AI for replay insights.");
@@ -30,7 +30,7 @@ async fn main() {
     match command.as_str() {
         "extract" => {
             if args.len() < 3 {
-                println!("Usage: replayassistant extract <input>");
+                println!("Usage: ReplayAssistant extract <input>");
                 return;
             }
             let input = &args[2];
@@ -45,7 +45,7 @@ async fn main() {
         }
         "convert" => {
             if args.len() < 3 {
-                println!("Usage: replayassistant convert <input>");
+                println!("Usage: ReplayAssistant convert <input>");
                 return;
             }
             let input = &args[2];
@@ -77,7 +77,7 @@ async fn main() {
         }
         "analysis" => {
             if args.len() < 3 {
-                println!("Usage: replayassistant analysis <file.replay>");
+                println!("Usage: ReplayAssistant analysis <file.replay>");
                 return;
             }
             let input = &args[2];
@@ -171,7 +171,7 @@ async fn main() {
         }
         "ai" => {
             if args.len() < 3 {
-                println!("Usage: replayassistant ai <match_guid> [focus]");
+                println!("Usage: ReplayAssistant ai <match_guid> [focus]");
                 return;
             }
 
