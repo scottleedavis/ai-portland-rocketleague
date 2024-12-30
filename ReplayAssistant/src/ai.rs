@@ -1,18 +1,18 @@
-use serde::Serialize;
+use serde::{Deserialize,Serialize};
 use reqwest::{Client, multipart};
 use std::{env, fs::File, io,io::Read,error::Error};
 
-#[derive(Serialize)]
+#[derive(Serialize,Deserialize)]
 struct OpenAITool {
     r#type: String,
 }
 
-#[derive(Serialize)]
+#[derive(Debug,Serialize,Deserialize)]
 struct OpenAIToolResources {
-    code_interpreter: OpenAIToolResourcesCodeInterpreter,
+    code_interpreter: Option<OpenAIToolResourcesCodeInterpreter>,
 }
 
-#[derive(Serialize)]
+#[derive(Debug,Serialize,Deserialize)]
 struct OpenAIToolResourcesCodeInterpreter {
     file_ids: Vec<String>,
 }
@@ -24,6 +24,13 @@ struct CreateAssistantRequest {
     instructions: String,
     model: String,
     tools: Vec<OpenAITool>,
+    tool_resources: OpenAIToolResources,
+}
+
+#[derive(Debug,Deserialize)]
+struct CreateThreadResponse {
+    id: String,
+    object: String,
     tool_resources: OpenAIToolResources,
 }
 
@@ -125,9 +132,9 @@ async fn generate_assistant(instructions: &str, files: &[String]) -> Result<Stri
             r#type: "code_interpreter".to_string(),
         }],
         tool_resources: OpenAIToolResources {
-            code_interpreter: OpenAIToolResourcesCodeInterpreter {
+            code_interpreter: Some(OpenAIToolResourcesCodeInterpreter {
                 file_ids: files.to_vec(),
-            },
+            }),
         },
     };
 
@@ -153,6 +160,52 @@ async fn generate_assistant(instructions: &str, files: &[String]) -> Result<Stri
     }
 }
 
+pub async fn create_thread() -> Result<String, Box<dyn Error>> {
+    let client = Client::new();
+    let api_key = env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY must be set");
+    let api_url = "https://api.openai.com/v1/threads";
+
+    let response = client
+        .post(api_url)
+        .header("Authorization", format!("Bearer {}", api_key))
+        .header("Content-Type", "application/json")
+        .header("OpenAI-Beta", "assistants=v2")
+        .send()
+        .await?;
+
+    let response: CreateThreadResponse = response.json().await?;
+
+     println!("{:?}", response);
+    Ok(response.id)
+}
+
+// pub async fn create_run(client: &Client, thread_id: &str) -> Result<String, Error> {
+//     // let url = format!("{}/threads/{}/runs", OPENAI_API_BASE, thread_id);
+
+//     // let response = client
+//     //     .post(&url)
+//     //     .header("Authorization", format!("Bearer {}", API_KEY))
+//     //     .send()
+//     //     .await?;
+
+//     // let response_json: serde_json::Value = response.json().await?;
+//     // Ok(response_json["id"].as_str().unwrap_or_default().to_string())
+// }
+
+// pub async fn create_message(client: &Client, run_id: &str, prompt: &str) -> Result<String, Error> {
+//     // let url = format!("{}/runs/{}/messages", OPENAI_API_BASE, run_id);
+//     // let body = json!({ "content": prompt });
+
+//     // let response = client
+//     //     .post(&url)
+//     //     .header("Authorization", format!("Bearer {}", API_KEY))
+//     //     .json(&body)
+//     //     .send()
+//     //     .await?;
+
+//     // let response_json: serde_json::Value = response.json().await?;
+//     // Ok(response_json["content"].as_str().unwrap_or_default().to_string())
+// }
 
 const PROMPT: &str = "Evaluate the replay on boost efficiency, aerial control, and shot accuracy using the csv files. The csv files are linked by a primary key column 'Frame'. Provide insights on situational awareness, risk/reward trade-offs, mechanical highlights. Also focus on team play, identifying dominant roles.";
 
@@ -172,7 +225,10 @@ pub async fn prompt_assistant(assistant_id: &str, prompt: &str) -> Result<String
 
     println!("Assistant ID: {}", assistant_id);
     println!("Prompt: {}", prompt);
+    let thread_id = create_thread().await?;
+    // let run_id = create_run(client, &thread_id).await?;
+    // let response = create_message(client, &run_id, prompt).await?;
+    // Ok(response)
 
-
-    Ok("reponse".to_string())
+    Ok(thread_id)
 }
