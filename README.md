@@ -4,7 +4,12 @@ Materials/code for a [10 minute presentation](https://www.meetup.com/ai-portland
 
 ## Overview
 
-Rocket League is a fast-paced game requiring quick reflexes, precise control, and strategic team play. This project explores three primary approaches to game and AI integration:
+Rocket League is a fast-paced game that demands quick reflexes, precise control, and strategic team play. This project explores two primary approaches to integrating game mechanics with AI:
+
+**Live Mechanics Feedback:** Anthropic's Claude Sonnet 3.5 model was used to provide real-time feedback on player mechanics.
+**Replay prompting:** OpenAI's Assistant API was utilized for in-depth replay analysis with freeform prompts in-replay.
+
+These AI tools enhance my personal gaming experience by delivering valuable feedback and analysis.
 
 ### 1. [DribbleCoach](./DribbleCoach/README.md) **: Live Mechanics Feedback**
 ![DribbleCoach.png](DribbleCoach.png)
