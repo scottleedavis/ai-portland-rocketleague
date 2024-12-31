@@ -28,13 +28,6 @@ struct CreateAssistantRequest {
     tool_resources: OpenAIToolResources,
 }
 
-#[derive(Debug,Deserialize)]
-struct CreateThreadResponse {
-    id: String,
-    object: String,
-    tool_resources: OpenAIToolResources,
-}
-
 #[derive(Debug,Serialize,Clone)]
 struct UserMessage {
     role: String,
