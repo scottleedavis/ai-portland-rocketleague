@@ -26,7 +26,7 @@ Rocket League is a fast-paced game that demands quick reflexes, precise control,
 
 available commands
 
-prepare an OpenAI Assistant for the current replay
+debug console commands
 ```bash
 replay_prepare
 replay_messages
