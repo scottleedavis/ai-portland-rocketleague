@@ -66,28 +66,28 @@ pub async fn create_assistant(match_guid: &str) -> io::Result<String> {
 
     match upload_file(&player_stats_csv_path).await {
         Ok(file_id) => {
-            println!("Uploaded player stats csv: {}",file_id);
+            println!("Uploaded player stats: {}",file_id);
             files.push(file_id);
         },
         Err(e) => eprintln!("Error uploading to OpenAI: {}", e),
     }
     match upload_file(&goals_csv_path).await {
         Ok(file_id) => {
-            println!("Uploaded goals csv: {}",file_id);
+            println!("Uploaded goals: {}",file_id);
             files.push(file_id);
         },
         Err(e) => eprintln!("Error uploading to OpenAI: {}", e),
     }
     match upload_file(&highlights_csv_path).await {
         Ok(file_id) => {
-            println!("Uploaded highlights csv: {}",file_id);
+            println!("Uploaded highlights: {}",file_id);
             files.push(file_id);
         },
         Err(e) => eprintln!("Error uploading to OpenAI: {}", e),
     }
     match upload_file(&frames_csv_path).await {
         Ok(file_id) => {
-            println!("Uploaded frames csv: {}",file_id);
+            println!("Uploaded frames: {}",file_id);
             files.push(file_id);
         },
         Err(e) => eprintln!("Error uploading  to OpenAI: {}", e),
