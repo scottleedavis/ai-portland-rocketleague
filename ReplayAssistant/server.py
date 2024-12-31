@@ -47,7 +47,7 @@ def handle_replay(guid):
 
 
 @app.route('/messages/<thread_id>/', methods=['GET'])
-def query(thread_id):
+def messages(thread_id):
 
     print("Got request for ",thread_id)
     command = ["./ReplayAssistant", "messages", thread_id]

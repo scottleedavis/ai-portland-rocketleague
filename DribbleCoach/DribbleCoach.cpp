@@ -19,13 +19,15 @@
 BAKKESMOD_PLUGIN(DribbleCoach, "DribbleCoach", plugin_version, PLUGINTYPE_THREADED)
 
 bool isDribblen = false;
-std::string query = "";
+std::string prompt = "";
+std::string thread_id = "";
 std::shared_ptr<CVarManagerWrapper> _globalCvarManager;
 const std::string le_prompt = "checking out this replay of a car and ball practicing dribbling, until it touches ground. Give a brief one sentence recommendation to the player saying what was done well and/or what could improve.  Make your response no longer than nine words.";
 const std::string data_row_header = "time, car_x, car_y, car_z, car_pitch, car_roll, car_yaw, ball_x, ball_y, ball_z";
 const std::string replay_prepare = "replay_prepare";
 const std::string replay_prompt = "replay_prompt";
-std::string replay_assistant_id = "";
+const std::string replay_messages = "replay_messages";
+
 std::string yonder_ai_text = "";
 
 void DribbleCoach::onLoad()
@@ -34,6 +36,7 @@ void DribbleCoach::onLoad()
     cvarManager->registerCvar("anthropic_api_key", "YOUR_SECRET_KEY", "API key for the Anthropic AI service", true);
     cvarManager->registerNotifier(replay_prepare, std::bind(&DribbleCoach::OnCommand, this, std::placeholders::_1), "Starts/stops replay analysis", PERMISSION_REPLAY);
     cvarManager->registerNotifier(replay_prompt, std::bind(&DribbleCoach::OnCommand, this, std::placeholders::_1), "Queries AI on current replay", PERMISSION_REPLAY);
+    cvarManager->registerNotifier(replay_messages, std::bind(&DribbleCoach::OnCommand, this, std::placeholders::_1), "Gets latest Assistant messages", PERMISSION_REPLAY);
 
     gameWrapper->HookEvent("Function TAGame.Ball_TA.OnRigidBodyCollision", std::bind(&DribbleCoach::OnDroppedBall, this, std::placeholders::_1));
     groundDribbleResetKey = this->gameWrapper->GetFNameIndexByString("XboxTypeS_DPad_Up");
@@ -44,20 +47,20 @@ void DribbleCoach::onLoad()
     LOG("Loaded.");
 }
 
-void DribbleCoach::onReplayAssistant()
+void DribbleCoach::OnReplayAssistant()
 {
     ReplayServerWrapper gew = gameWrapper->GetGameEventAsReplay();
     LOG("Preparing replay: \n" + gew.GetReplay().GetId().ToString()+"\n");
-    server_thread = std::thread(std::bind(&DribbleCoach::prepareReplay, this, gew.GetReplay().GetId().ToString()));
-    server_thread.detach();
+    replay_thread = std::thread(std::bind(&DribbleCoach::PrepareReplay, this, gew.GetReplay().GetId().ToString()));
+    replay_thread.detach();
 }
 
-void DribbleCoach::onQueryAssistant(std::vector<std::string> params)
+void DribbleCoach::OnQueryAssistant(std::vector<std::string> params)
 {
     ReplayServerWrapper gew = gameWrapper->GetGameEventAsReplay();
     LOG("Prompting replay: \n" + gew.GetReplay().GetId().ToString()+"\n");
-    server_thread = std::thread(std::bind(&DribbleCoach::queryReplayAssistant, this, params));
-    server_thread.detach();
+    prompt_thread = std::thread(std::bind(&DribbleCoach::PromptReplayAssistant, this, params));
+    prompt_thread.detach();
 }
 
 void DribbleCoach::OnCommand(std::vector<std::string> params)
@@ -65,10 +68,13 @@ void DribbleCoach::OnCommand(std::vector<std::string> params)
     std::string command = params.at(0);
         
     if (command.compare(replay_prepare) == 0) {
-        this->onReplayAssistant();
+        this->OnReplayAssistant();
     } else if (command.compare(replay_prompt) == 0) {
         params.erase(params.begin());
-        this->onQueryAssistant(params);
+        this->OnQueryAssistant(params);
+    }
+    else if (command.compare(replay_messages) == 0) {
+        this->checkMessages();
     }
 }
 
@@ -159,8 +165,8 @@ void DribbleCoach::OnDroppedBall(std::string eventName)
             std::string output = "";
             for (unsigned int i = 0; i < playbackData.size(); i++) output += playbackData.at(i) + " ";
 
-            server_thread = std::thread(std::bind(&DribbleCoach::AskAnthropic, this, output));
-            server_thread.detach();
+            freeplay_thread = std::thread(std::bind(&DribbleCoach::AskAnthropic, this, output));
+            freeplay_thread.detach();
 
             playbackData.clear();
 
@@ -295,8 +301,113 @@ void DribbleCoach::AskAnthropic(std::string prompt) {
     LOG(this->TrimString(why_dribble));
 
 }
+void DribbleCoach::checkMessages()
+{
 
-void DribbleCoach::prepareReplay(const std::string& replayFileName)
+    LOG("Waiting....");
+    HINTERNET hSession = WinHttpOpen(
+        L"DribbleCoach/1.0",                 // User agent
+        WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,          // Access type
+        WINHTTP_NO_PROXY_NAME,                      // Proxy name
+        WINHTTP_NO_PROXY_BYPASS,                    // Proxy bypass
+        0);
+
+    if (hSession == NULL) {
+        LOG("WinHttpOpen failed: " + std::to_string(GetLastError()));
+        return;
+    }
+
+    HINTERNET hConnect = WinHttpConnect(
+        hSession,
+        L"localhost",                       // Server name
+        5000,                               // HTTP port 
+        0);
+
+    if (hConnect == NULL) {
+        WinHttpCloseHandle(hSession);
+        LOG("WinHttpConnect failed: " + std::to_string(GetLastError()));
+        return;
+    }
+
+    std::wstring wThreadId(thread_id.begin(), thread_id.end());             // Convert std::string to std::wstring
+    std::wstring fullPath = L"/messages/" + wThreadId;                      // Concatenate the path
+
+    HINTERNET hRequest = WinHttpOpenRequest(
+        hConnect,                               // Connection handle
+        L"GET",                                 // HTTP method
+        fullPath.c_str(),                               // Path (API endpoint)
+        NULL,                                   // HTTP version (use default)
+        WINHTTP_NO_REFERER,                     // Referrer (not needed)
+        WINHTTP_NO_ADDITIONAL_HEADERS,          // Additional headers (not needed)
+        0);                                     // No flags for secure connection (i.e., HTTP, not HTTPS)
+
+    if (hRequest == NULL) {
+        WinHttpCloseHandle(hConnect);
+        WinHttpCloseHandle(hSession);
+        LOG("WinHttpOpenRequest failed: " + std::to_string(GetLastError()));
+        return;
+    }
+
+
+    std::wstring headers = L"";
+
+    BOOL result = WinHttpSendRequest(
+        hRequest,
+        headers.c_str(),                            // Headers
+        -1,                                         // Length of the header
+        NULL,                       // Request body
+        0,                                // Body length
+        0,                                // Total length
+        0);                                         // Context (optional)
+
+    if (!result) {
+        WinHttpCloseHandle(hRequest);
+        WinHttpCloseHandle(hConnect);
+        WinHttpCloseHandle(hSession);
+        LOG("WinHttpSendRequest failed: " + std::to_string(GetLastError()));
+        return;
+    }
+
+
+
+    result = WinHttpReceiveResponse(hRequest, NULL);
+
+    if (!result) {
+        WinHttpCloseHandle(hRequest);
+        WinHttpCloseHandle(hConnect);
+        WinHttpCloseHandle(hSession);
+        LOG("WinHttpReceiveResponse failed: " + std::to_string(GetLastError()));
+        return;
+    }
+
+    DWORD bytesRead = 0;
+    DWORD totalBytesRead = 0;
+    char buffer[4096];
+    std::stringstream responseStream;
+
+    while (WinHttpReadData(hRequest, (LPVOID)buffer, sizeof(buffer), &bytesRead) && bytesRead > 0) {
+
+        responseStream.write(buffer, bytesRead);
+        totalBytesRead += bytesRead;
+
+        if (totalBytesRead >= 100000) {
+            LOG("Warning: Response data exceeds 100KB");
+            return;
+        }
+    }
+    const std::string latest_thread_messages = responseStream.str();
+
+    WinHttpCloseHandle(hRequest);
+    WinHttpCloseHandle(hConnect);
+    WinHttpCloseHandle(hSession);
+
+//
+
+    LOG("Assistant thread messages: \n" + latest_thread_messages + "\n");
+
+}
+
+void DribbleCoach::PrepareReplay(const std::string& replayFileName)
 {
 
     LOG("Waiting....");
@@ -390,18 +501,18 @@ void DribbleCoach::prepareReplay(const std::string& replayFileName)
             return;
         }
     }
-    const std::string assistant_id = responseStream.str();
+    const std::string assistant_thread_id = responseStream.str();
 
     WinHttpCloseHandle(hRequest);
     WinHttpCloseHandle(hConnect);
     WinHttpCloseHandle(hSession);
 
-    replay_assistant_id = assistant_id;
-    LOG("Assistant created: \n"+assistant_id+"\n");
+    thread_id = assistant_thread_id;
+    LOG("Assistant thread created: \n"+ assistant_thread_id +"\n");
 
 }
 
-void DribbleCoach::queryReplayAssistant(std::vector<std::string> params) {
+void DribbleCoach::PromptReplayAssistant(std::vector<std::string> params) {
 
     std::string query_text = joinWithUrlEncodedSpace(params);
 
@@ -430,7 +541,7 @@ void DribbleCoach::queryReplayAssistant(std::vector<std::string> params) {
         return;
     }
 
-    std::wstring wReplayAssistantId(replay_assistant_id.begin(), replay_assistant_id.end());  // Convert std::string to std::wstring
+    std::wstring wReplayAssistantId(thread_id.begin(), thread_id.end());  // Convert std::string to std::wstring
     std::wstring wReplayQuery(query_text.begin(), query_text.end());  // Convert std::string to std::wstring
     std::wstring fullPath = L"/query/" + wReplayAssistantId +L"/" + wReplayQuery;                      // Concatenate the path
 
@@ -502,6 +613,8 @@ void DribbleCoach::queryReplayAssistant(std::vector<std::string> params) {
     WinHttpCloseHandle(hRequest);
     WinHttpCloseHandle(hConnect);
     WinHttpCloseHandle(hSession);
+
+//
 
     LOG(query_replay);
 }
