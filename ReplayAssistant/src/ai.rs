@@ -285,7 +285,7 @@ async fn create_message(thread_id: &str, prompt: &str) -> Result<String, Box<dyn
     Ok(response_json["content"].as_str().unwrap_or_default().to_string())
 }
 
-async fn get_messages(thread_id: &str) -> Result<Vec<String>, Box<dyn Error>>  {
+pub async fn get_messages(thread_id: &str) -> Result<Vec<String>, Box<dyn Error>>  {
     let client = Client::new();
     let api_key = env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY must be set");
     let api_url = format!("https://api.openai.com/v1/threads/{}/messages", thread_id);
@@ -329,27 +329,25 @@ fn parse_text_values(response_json: Value) -> Vec<String> {
     return text_values;
 }
 
-pub async fn prompt_assistant(thread_id: &str, prompt: &str) -> Result<Vec<String>, Box<dyn Error>> {
 
-    if thread_id.is_empty() {
-        return Err("Thread ID is required.".into());
-    }
+// pub async fn prompt_assistant(thread_id: &str, prompt: &str) -> Result<String, Box<dyn Error>>  {
 
-    println!("Thread ID: {}", thread_id);
-    println!("Prompt: {}", prompt);
+//     if thread_id.is_empty() {
+//         return Err("Thread ID is required.".into());
+//     }
 
-    if prompt.len() == 0 {
+//     println!("Thread ID: {}", thread_id);
+//     println!("Prompt: {}", prompt);
 
-        let response = get_messages(&thread_id).await?;
-        println!("{:?}", response);
-    } else {
-        // prompt.to_string()
-        // TODO URL decode is needed 
-        //now send the prompt to the thread
-            // let response = create_message(&thread_id, &prompt_to_use).await?;
-        Ok("slay".to_string())
-    };
+//     if prompt.len() == 0 {
 
-
-
-}
+//         let response = get_messages(&thread_id).await?;
+//         println!("{:?}", response);
+//     } else {
+//         // prompt.to_string()
+//         // TODO URL decode is needed 
+//         //now send the prompt to the thread
+//             // let response = create_message(&thread_id, &prompt_to_use).await?;
+//         Ok("slay".to_string())
+//     };
+// }

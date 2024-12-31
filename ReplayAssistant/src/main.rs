@@ -18,7 +18,7 @@ async fn main() {
         println!("Usage: ReplayAssistant <command> [prompt]");
         println!("Commands:");
         println!(" prepare <path/some.replay> - Prepare replay data for ai");
-        println!(" messages <thread_id>       - Get the latest messages from thread")
+        println!(" messages <thread_id>       - Get the latest messages from thread");
         println!(" ai <thread_id> [query]     - Query AI for replay insights. (with default prompt)");
         return;
     }
@@ -63,23 +63,33 @@ async fn main() {
 
         }
         "messages" => {
-
-        }
-        "ai" => {
-            if args.len() < 3 {
-                println!("Usage: ReplayAssistant ai <assistant_id> [prompt]");
+            if args.len() != 3 {
+                println!("Usage: ReplayAssistant messages <thread_id>");
                 return;
             }
 
-            let assistant_id = &args[2];
-            // Set focus to "all" if not provided, otherwise pass the provided value
-            let prompt = if args.len() > 3 { &args[3] } else { "" };
+            let thread_id = &args[2];
 
-            println!("Querying AI for insights...");
-            match ai::prompt_assistant(assistant_id, prompt).await {
-                Ok(response) => println!("AI feedback: {}",response),
-                Err(e) => eprintln!("Error querying AI: {}", e),
+            match ai::get_messages(thread_id).await {
+                Ok(response) => println!("{:?}",response),
+                Err(e) => eprintln!("Error AI messages: {}", e),
             }
+        }
+        "ai" => {
+            // if args.len() < 3 {
+            //     println!("Usage: ReplayAssistant ai <thread_id> [prompt]");
+            //     return;
+            // }
+
+            // let assistant_id = &args[2];
+            // // Set focus to "all" if not provided, otherwise pass the provided value
+            // let prompt = if args.len() > 3 { &args[3] } else { "" };
+
+            // println!("Querying AI for insights...");
+            // match ai::prompt_assistant(assistant_id, prompt).await {
+            //     Ok(response) => println!("AI feedback: {}",response),
+            //     Err(e) => eprintln!("Error querying AI: {}", e),
+            // }
         }
         _ => {
             println!("Unknown command: {}", command);

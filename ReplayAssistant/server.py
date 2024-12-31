@@ -37,22 +37,40 @@ def handle_replay(guid):
         
         # Split the output into lines and get the last one (which should be the assistant_id)
         output_lines = result.stdout.splitlines()
-        assistant_id = output_lines[-1] if output_lines else "Unknown"
-        print("ReplayAssistant ID ",assistant_id)
-        return f"{assistant_id}", 200
+        thread_id = output_lines[-1] if output_lines else "Unknown"
+        print("ReplayAssistant Thread ID ",thread_id)
+        return f"{thread_id}", 200
 
     except subprocess.CalledProcessError as e:
         return f"Command failed with error: {e}", 500
 
 
-@app.route('/query/<assistant_id>/', methods=['GET'])
-@app.route('/query/<assistant_id>/<query>', methods=['GET'])
-def query(assistant_id, query=None):
 
-    # asst_tJov44Av5EdGrdKrm2vLQL8p
+@app.route('/messages/<thread_id>/', methods=['GET'])
+def query(thread_id):
+
+    print("Got request for ",thread_id)
+    command = ["./ReplayAssistant", "messages", thread_id]
+    
+    try:
+        env = os.environ.copy()
+        
+        print("Running ReplayAssistant...")
+        result = subprocess.run(command, check=True, env=env, capture_output=True, text=True)
+        print("ReplayAssistant Thread Messages ",result)
+        return f"{result}", 200
+
+    except subprocess.CalledProcessError as e:
+        return f"Command failed with error: {e}", 500
+
+
+
+@app.route('/query/<thread_id>/<query>', methods=['GET'])
+def query(thread_id, query):
+
     if query:
-        return f"assistant_id: {assistant_id}, Query: {query}", 200
-    return f"assistant_id: {assistant_id}, No query provided", 200
+        return f"thread_id: {thread_id}, Query: {query}", 200
+    return f"thread_id: {thread_id}, No query provided", 200
 
     # # Construct the source and destination file paths
     # source_file = os.path.join(replays_path, guid + ".replay")
