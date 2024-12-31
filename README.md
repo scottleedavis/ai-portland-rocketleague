@@ -31,7 +31,7 @@ replay_messages
 replay_prompt How many times did I hit the ball?
 ```
    - **ToDo**:
-     - Provide ai response replay imgui prompt console during replay
+     - Provide imgui prompt console during replay
 
 ## Objectives
 
