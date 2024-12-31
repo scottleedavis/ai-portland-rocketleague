@@ -30,24 +30,11 @@ available commands
 prepare an OpenAI Assistant for the current replay
 ```bash
 replay_prepare
-```
-
-free form prompt
-```bash
-replay_prompt How many times did I hit the ball towards my own goal or it front of it?
-```
-
-default prompt 
-```bash
-replay_prompt 
-```
-default prompt is equivalent to
-```bash
-replay_prompt Evaluate the replay on boost efficiency, aerial control, and shot accuracy using the csv files.  The csv files are linked by a primary key column 'Frame'. Provide insights on situational awareness, risk/reward trade-offs, mechanical highlights.  Also focus on team play, indentifying dominant roles.
+replay_messages
+replay_prompt How many times did I hit the ball?
 ```
    - **ToDo**:
-     - Finish replay_prompt
-     - Provide ai response replay overlays
+     - Provide ai response replay imgui prompt console during replay
 
 ## Objectives
 
