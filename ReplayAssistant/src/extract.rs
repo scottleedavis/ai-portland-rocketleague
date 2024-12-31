@@ -111,7 +111,7 @@ pub fn extract_replay(input: &str) -> io::Result<String> {
     .unwrap_or_else(|| "unknown_match_guid".to_string());
 
     match parse_replay(parsed_data, match_guid.clone()) {
-        Ok(_) => println!("Replay data parsed successfully."),
+        Ok(_) => {/*println!("Replay data parsed successfully.")*/},
         Err(e) => eprintln!("Error parsing replay: {}", e),
     };
 
@@ -330,6 +330,6 @@ fn save_to_file(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let file_path = format!("{}/{}.{}.json", output_dir, match_guid, section);
     fs::write(&file_path, serde_json::to_string_pretty(data)?)?;
-    println!("Saved: {}", file_path);
+    // println!("Saved: {}", file_path);
     Ok(())
 }

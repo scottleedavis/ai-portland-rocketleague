@@ -18,7 +18,8 @@ async fn main() {
         println!("Usage: ReplayAssistant <command> [prompt]");
         println!("Commands:");
         println!(" prepare <path/some.replay> - Prepare replay data for ai");
-        println!(" ai <assistant_id> [query] - Query AI for replay insights. (with default prompt)");
+        println!(" messages <thread_id>       - Get the latest messages from thread")
+        println!(" ai <thread_id> [query]     - Query AI for replay insights. (with default prompt)");
         return;
     }
 
@@ -31,8 +32,6 @@ async fn main() {
                 return;
             }
             let input = &args[2];
-
-            println!("Starting prepare...");
 
             println!("Extracting replay data: {}", input);
             let match_guid = match extract::extract_replay(input) {
@@ -58,9 +57,12 @@ async fn main() {
 
             println!("Creating assistant...");
             match ai::create_assistant(&match_guid).await {
-                Ok(assistant_id) => println!("{}",assistant_id),
+                Ok(thread_id) => println!("{}",thread_id),
                 Err(e) => eprintln!("Error querying AI: {}", e),
             }
+
+        }
+        "messages" => {
 
         }
         "ai" => {
@@ -87,7 +89,7 @@ async fn main() {
 }
 
 fn process_conversion(file_path: &str) {
-    println!("Converting replay data to CSV: {}", file_path);
+    // println!("Converting replay data to CSV: {}", file_path);
 
     let file_content = match fs::read_to_string(file_path) {
         Ok(content) => content,
@@ -110,7 +112,7 @@ fn process_conversion(file_path: &str) {
         process::exit(1);
     }
 
-    println!("Conversion completed successfully for file: {}", file_path);
+    // println!("Conversion completed successfully for file: {}", file_path);
 }
 
 fn delete_json_files(output_dir: &str) {
@@ -123,7 +125,7 @@ fn delete_json_files(output_dir: &str) {
                         if let Err(e) = fs::remove_file(&path) {
                             eprintln!("Failed to delete file {}: {}", path.display(), e);
                         } else {
-                            println!("Deleted file: {}", path.display());
+                            // println!("Deleted file: {}", path.display());
                         }
                     }
                 }

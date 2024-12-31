@@ -1,4 +1,5 @@
 use serde::{Deserialize,Serialize};
+use serde_json::json;
 use reqwest::{Client, multipart};
 use std::{env, fs::File, io,io::Read,error::Error};
 
@@ -34,6 +35,27 @@ struct CreateThreadResponse {
     tool_resources: OpenAIToolResources,
 }
 
+#[derive(Debug,Serialize,Clone)]
+struct UserMessage {
+    role: String,
+    content: String,
+}
+
+#[derive(Debug,Serialize)]
+struct CreateMessage {
+    messages: Vec<UserMessage>,
+}
+
+#[derive(Debug,Serialize)]
+struct CreateThreadAndRunRequest {
+    assistant_id: String,
+    thread: CreateMessage,
+}
+
+const INSTRUCTIONS: &str = "You are a world-class Rocket League team coach. You analyze data present in .csv files, understand trends, create data visualizations relevant to those trends, and share brief text summaries of observed trends. Your insights help improve team gameplay. Analyze team positioning, rotations, and overall synergy.";
+    
+const PROMPT: &str = "Evaluate the replay on boost efficiency, aerial control, and shot accuracy using the csv files. The csv files are linked by a primary key column 'Frame'. Provide insights on situational awareness, risk/reward trade-offs, mechanical highlights. Also focus on team play, identifying dominant roles.";
+
 pub async fn create_assistant(match_guid: &str) -> io::Result<String> {
 
     let openai_key = env::var("OPENAI_API_KEY")
@@ -41,8 +63,7 @@ pub async fn create_assistant(match_guid: &str) -> io::Result<String> {
 
     println!("Using OpenAI with key: {}****", &openai_key[0..8]);
 
-    const INSTRUCTIONS: &str = "You are a world-class Rocket League team coach. You analyze data present in .csv files, understand trends, create data visualizations relevant to those trends, and share brief text summaries of observed trends. Your insights help improve team gameplay. Analyze team positioning, rotations, and overall synergy.";
-    
+
     let player_stats_csv_path = format!("./output/{}.player_stats.json.csv", match_guid);
     let goals_csv_path = format!("./output/{}.goals.json.csv", match_guid);
     let highlights_csv_path = format!("./output/{}.highlights.json.csv", match_guid);
@@ -79,9 +100,9 @@ pub async fn create_assistant(match_guid: &str) -> io::Result<String> {
         Err(e) => eprintln!("Error uploading  to OpenAI: {}", e),
     }
     match generate_assistant(INSTRUCTIONS, &files).await {
-        Ok(assistant_id) => {
-            println!("Assistant created successfully: {}",assistant_id);
-            response = assistant_id;
+        Ok(thread_id) => {
+            println!("Assistant created successfully on thread: {}",thread_id);
+            response = thread_id;
         },
         Err(e) => eprintln!("Error creating assistant: {}", e),
     }
@@ -152,7 +173,10 @@ async fn generate_assistant(instructions: &str, files: &[String]) -> Result<Stri
         // println!("Assistant created successfully: {}", response_text);
         let response_json: serde_json::Value = serde_json::from_str(&response_text)?;
         let assistant_id = response_json["id"].as_str().unwrap_or_default().to_string();
-        Ok(assistant_id)
+        // let thread_id = create_thread().await?;
+        // let run_id = create_run(&assistant_id, &thread_id).await?;
+        let id = create_thread_and_run(&assistant_id, PROMPT).await?;
+        Ok(id)
     } else {
         let status = response.status();
         let error_text = response.text().await?;
@@ -160,7 +184,42 @@ async fn generate_assistant(instructions: &str, files: &[String]) -> Result<Stri
     }
 }
 
-pub async fn create_thread() -> Result<String, Box<dyn Error>> {
+async fn create_thread_and_run(assistant_id: &str, prompt: &str) -> Result<String, Box<dyn Error>> {
+    let client = Client::new();
+    let api_key = env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY must be set");
+    let api_url = "https://api.openai.com/v1/threads/runs";
+
+    let request_body = CreateThreadAndRunRequest {
+        assistant_id: assistant_id.to_string(),
+        thread: CreateMessage {
+            messages: vec![UserMessage {
+                role: "user".to_string(),
+                content: prompt.to_string(),
+            }]
+        },
+    };
+
+    let response = client
+        .post(api_url)
+        .header("Authorization", format!("Bearer {}", api_key))
+        .header("Content-Type", "application/json")
+        .header("OpenAI-Beta", "assistants=v2")
+        .json(&request_body)
+        .send()
+        .await?;
+
+    if response.status().is_success() {
+        let response_json: serde_json::Value = response.json().await?;
+        // println!("{:?}", response_json);
+        Ok(response_json["thread_id"].as_str().unwrap_or_default().to_string())
+    } else {
+        let status = response.status();
+        let error_text = response.text().await?;
+        Err(format!("Failed to create run ({}): {}", status, error_text).into())
+    }
+}
+
+async fn create_thread() -> Result<String, Box<dyn Error>> {
     let client = Client::new();
     let api_key = env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY must be set");
     let api_url = "https://api.openai.com/v1/threads";
@@ -175,60 +234,122 @@ pub async fn create_thread() -> Result<String, Box<dyn Error>> {
 
     let response: CreateThreadResponse = response.json().await?;
 
-     println!("{:?}", response);
     Ok(response.id)
 }
 
-// pub async fn create_run(client: &Client, thread_id: &str) -> Result<String, Error> {
-//     // let url = format!("{}/threads/{}/runs", OPENAI_API_BASE, thread_id);
+async fn create_run(assistant_id: &str, thread_id: &str) -> Result<String, Box<dyn Error>> {
+    let client = Client::new();
+    let api_key = env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY must be set");
+    let api_url = format!("https://api.openai.com/v1/threads/{}/runs", thread_id);
 
-//     // let response = client
-//     //     .post(&url)
-//     //     .header("Authorization", format!("Bearer {}", API_KEY))
-//     //     .send()
-//     //     .await?;
+    let body = json!({"assistant_id": assistant_id});
 
-//     // let response_json: serde_json::Value = response.json().await?;
-//     // Ok(response_json["id"].as_str().unwrap_or_default().to_string())
-// }
+    let response = client
+        .post(&api_url)
+        .header("Authorization", format!("Bearer {}", api_key))
+        .header("Content-Type", "application/json")
+        .header("OpenAI-Beta", "assistants=v2")
+        .json(&body)
+        .send()
+        .await?;
 
-// pub async fn create_message(client: &Client, run_id: &str, prompt: &str) -> Result<String, Error> {
-//     // let url = format!("{}/runs/{}/messages", OPENAI_API_BASE, run_id);
-//     // let body = json!({ "content": prompt });
+    if response.status().is_success() {
+        let response_json: serde_json::Value = response.json().await?;
+        println!("{:?}", response_json);
+        Ok(response_json["id"].as_str().unwrap_or_default().to_string())
+    } else {
+        let status = response.status();
+        let error_text = response.text().await?;
+        Err(format!("Failed to create run ({}): {}", status, error_text).into())
+    }
+}
 
-//     // let response = client
-//     //     .post(&url)
-//     //     .header("Authorization", format!("Bearer {}", API_KEY))
-//     //     .json(&body)
-//     //     .send()
-//     //     .await?;
+async fn create_message(thread_id: &str, prompt: &str) -> Result<String, Box<dyn Error>>  {
+    let client = Client::new();
+    let api_key = env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY must be set");
+    let api_url = format!("https://api.openai.com/v1/threads/{}/messages", thread_id);
 
-//     // let response_json: serde_json::Value = response.json().await?;
-//     // Ok(response_json["content"].as_str().unwrap_or_default().to_string())
-// }
+    let body = json!({ "role": "user", "content": prompt });
 
-const PROMPT: &str = "Evaluate the replay on boost efficiency, aerial control, and shot accuracy using the csv files. The csv files are linked by a primary key column 'Frame'. Provide insights on situational awareness, risk/reward trade-offs, mechanical highlights. Also focus on team play, identifying dominant roles.";
+    let response = client
+        .post(&api_url)
+        .header("Authorization", format!("Bearer {}", api_key))
+        .header("Content-Type", "application/json")
+        .header("OpenAI-Beta", "assistants=v2")
+        .json(&body)
+        .send()
+        .await?;
 
-pub async fn prompt_assistant(assistant_id: &str, prompt: &str) -> Result<String, Box<dyn Error>> {
+    let response_json: serde_json::Value = response.json().await?;
+    println!("{:?}",response_json);
+    Ok(response_json["content"].as_str().unwrap_or_default().to_string())
+}
 
-    if assistant_id.is_empty() {
-        return Err("Assistant ID is required.".into());
+async fn get_messages(thread_id: &str) -> Result<Vec<String>, Box<dyn Error>>  {
+    let client = Client::new();
+    let api_key = env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY must be set");
+    let api_url = format!("https://api.openai.com/v1/threads/{}/messages", thread_id);
+
+    let response = client
+        .get(&api_url)
+        .header("Authorization", format!("Bearer {}", api_key))
+        .header("Content-Type", "application/json")
+        .header("OpenAI-Beta", "assistants=v2")
+        .send()
+        .await?;
+
+    let response_json: serde_json::Value = response.json().await?;
+    let responses = parse_text_values(response_json.clone());
+    // println!("{:?}",responses);
+    Ok(responses)
+}
+
+use serde_json::Value;
+
+fn parse_text_values(response_json: Value) -> Vec<String> {
+    let mut text_values = Vec::new();
+
+    if let Some(data_array) = response_json.get("data").and_then(|data| data.as_array()) {
+        for entry in data_array {
+            let role = entry.get("role").and_then(|role| role.as_str()).unwrap_or("unknown");
+            if let Some(content_array) = entry.get("content").and_then(|content| content.as_array()) {
+                for content_item in content_array {
+                    if let Some(text_value) = content_item
+                        .get("text")
+                        .and_then(|text| text.get("value"))
+                        .and_then(|value| value.as_str())
+                    {
+                        text_values.push(role.to_owned()+": "+text_value);
+                    }
+                }
+            }
+        }
+    }
+    text_values.reverse();
+    return text_values;
+}
+
+pub async fn prompt_assistant(thread_id: &str, prompt: &str) -> Result<Vec<String>, Box<dyn Error>> {
+
+    if thread_id.is_empty() {
+        return Err("Thread ID is required.".into());
     }
 
-    // Use the default prompt if none is provided
-    let prompt_to_use = if prompt.is_empty() {
-        PROMPT.to_string()
+    println!("Thread ID: {}", thread_id);
+    println!("Prompt: {}", prompt);
+
+    if prompt.len() == 0 {
+
+        let response = get_messages(&thread_id).await?;
+        println!("{:?}", response);
     } else {
-        prompt.to_string()
+        // prompt.to_string()
         // TODO URL decode is needed 
+        //now send the prompt to the thread
+            // let response = create_message(&thread_id, &prompt_to_use).await?;
+        Ok("slay".to_string())
     };
 
-    println!("Assistant ID: {}", assistant_id);
-    println!("Prompt: {}", prompt);
-    let thread_id = create_thread().await?;
-    // let run_id = create_run(client, &thread_id).await?;
-    // let response = create_message(client, &run_id, prompt).await?;
-    // Ok(response)
 
-    Ok(thread_id)
+
 }

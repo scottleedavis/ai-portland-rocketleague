@@ -70,7 +70,7 @@ fn handle_header(data: &Value, filename: &str) -> Result<(), Box<dyn std::error:
         unfair_team_size
     )?;
 
-    println!("Processed header: {}", filename);
+    // println!("Processed header: {}", filename);
     Ok(())
 }
 
@@ -91,7 +91,7 @@ fn handle_goals(data: &Value, filename: &str) -> Result<(), Box<dyn std::error::
         writeln!(file, "{},{},{}", player_name, player_team, frame)?;
     }
 
-    println!("Processed goals: {}", filename);
+    // println!("Processed goals: {}", filename);
     Ok(())
 }
 
@@ -126,7 +126,7 @@ fn handle_highlights(data: &Value, filename: &str) -> Result<(), Box<dyn std::er
         writeln!(file, "{},{},{},{}", ball_name, car_name, goal_actor_name, frame)?;
     }
 
-    println!("Processed highlights: {}", filename);
+    // println!("Processed highlights: {}", filename);
     Ok(())
 }
 
@@ -166,7 +166,7 @@ fn handle_player_stats(data: &Value, filename: &str) -> Result<(), Box<dyn std::
         )?;
     }
 
-    println!("Processed player stats: {}", filename);
+    // println!("Processed player stats: {}", filename);
     Ok(())
 }
 
@@ -178,7 +178,7 @@ fn handle_frames(data: &Value, filename: &str) -> Result<(), Box<dyn std::error:
 
     parse_frames(data, &mut file)?;
 
-    println!("Processed frames: {}", filename);
+    // println!("Processed frames: {}", filename);
     Ok(())
 }
 
