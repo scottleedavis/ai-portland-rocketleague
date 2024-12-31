@@ -45,6 +45,18 @@ struct CreateThreadAndRunRequest {
     thread: CreateMessage,
 }
 
+#[derive(Debug,Serialize)]
+struct RunMessage {
+    r#type: String,
+    text: String,
+}
+
+#[derive(Debug,Serialize)]
+struct CreateRunRequest {
+    role: String,
+    content: Vec<RunMessage>,
+}
+
 const INSTRUCTIONS: &str = "You are a world-class Rocket League team coach. You analyze data present in .csv files, understand trends, create data visualizations relevant to those trends, and share brief text summaries of observed trends. Your insights help improve team gameplay. Analyze team positioning, rotations, and overall synergy.";
     
 const PROMPT: &str = "Evaluate the replay on boost efficiency, aerial control, and shot accuracy using the csv files. The csv files are linked by a primary key column 'Frame'. Provide insights on situational awareness, risk/reward trade-offs, mechanical highlights. Also focus on team play, identifying dominant roles.";
@@ -93,9 +105,9 @@ pub async fn create_assistant(match_guid: &str) -> io::Result<String> {
         Err(e) => eprintln!("Error uploading  to OpenAI: {}", e),
     }
     match generate_assistant(INSTRUCTIONS, &files).await {
-        Ok(thread_id) => {
-            println!("Assistant created successfully on thread: {}",thread_id);
-            response = thread_id;
+        Ok(assistant_and_thread_id) => {
+            println!("Assistant and thread created: {}",assistant_and_thread_id);
+            response = assistant_and_thread_id;
         },
         Err(e) => eprintln!("Error creating assistant: {}", e),
     }
@@ -166,8 +178,10 @@ async fn generate_assistant(instructions: &str, files: &[String]) -> Result<Stri
         // println!("Assistant created successfully: {}", response_text);
         let response_json: serde_json::Value = serde_json::from_str(&response_text)?;
         let assistant_id = response_json["id"].as_str().unwrap_or_default().to_string();
+
         let id = create_thread_and_run(&assistant_id, PROMPT).await?;
-        Ok(id)
+        let combo = assistant_id +"|"+&id.to_string();
+        Ok(combo)
     } else {
         let status = response.status();
         let error_text = response.text().await?;
@@ -210,19 +224,51 @@ async fn create_thread_and_run(assistant_id: &str, prompt: &str) -> Result<Strin
     }
 }
 
+pub async fn create_run(thread_id: &str, assistant_id: &str) -> Result<String, Box<dyn Error>> {
+    let client = Client::new();
+    let api_key = env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY must be set");
+    let api_url = format!("https://api.openai.com/v1/threads/{}/runs", thread_id);
+
+    let request_body = json!({ "assistant_id": assistant_id});
+
+    let response = client
+        .post(api_url)
+        .header("Authorization", format!("Bearer {}", api_key))
+        .header("Content-Type", "application/json")
+        .header("OpenAI-Beta", "assistants=v2")
+        .json(&request_body)
+        .send()
+        .await?;
+
+    if response.status().is_success() {
+        let response_json: serde_json::Value = response.json().await?;
+        println!("{:?}", response_json);
+        Ok(response_json["thread_id"].as_str().unwrap_or_default().to_string())
+    } else {
+        let status = response.status();
+        let error_text = response.text().await?;
+        Err(format!("Failed to create run ({}): {}", status, error_text).into())
+    }
+}
+
 pub async fn create_message(thread_id: &str, prompt: &str) -> Result<String, Box<dyn Error>>  {
     let client = Client::new();
     let api_key = env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY must be set");
     let api_url = format!("https://api.openai.com/v1/threads/{}/messages", thread_id);
 
-    let body = json!({ "role": "user", "content": prompt });
-
+    let request_body = CreateRunRequest {
+        role: "user".to_string(),
+        content: vec![RunMessage {
+            r#type: "text".to_string(),
+            text: prompt.to_string(),
+        }]
+    };
     let response = client
         .post(&api_url)
         .header("Authorization", format!("Bearer {}", api_key))
         .header("Content-Type", "application/json")
         .header("OpenAI-Beta", "assistants=v2")
-        .json(&body)
+        .json(&request_body)
         .send()
         .await?;
 

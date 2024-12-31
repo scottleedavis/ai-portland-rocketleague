@@ -7,7 +7,6 @@ use std::fs;
 use std::process;
 use serde_json::Value;
 
-
 use tokio;
 
 #[tokio::main]
@@ -19,7 +18,7 @@ async fn main() {
         println!("Commands:");
         println!(" prepare <path/some.replay> - Prepare replay data for ai");
         println!(" messages <thread_id>       - Get the latest messages from thread");
-        println!(" ai <thread_id> [query]     - Query AI for replay insights. (with default prompt)");
+        println!(" prompt <thread_id> [query]     - Query AI for replay insights. (with default prompt)");
         return;
     }
 
@@ -75,18 +74,23 @@ async fn main() {
                 Err(e) => eprintln!("Error AI messages: {}", e),
             }
         }
-        "ai" => {
-            if args.len() < 4 {
-                println!("Usage: ReplayAssistant ai <thread_id> <prompt>");
+        "prompt" => {
+            if args.len() < 5 {
+                println!("Usage: ReplayAssistant prompt <assistant_id> <thread_id> <prompt>");
                 return;
             }
 
-            let thread_id = &args[2];
-            let prompt =  &args[3];
+            let assistant_id = &args[2];
+            let thread_id = &args[3];
+            let prompt =  &args[4];
 
             match ai::create_message(thread_id, prompt).await {
                 Ok(response) => println!("{:?}",response),
-                Err(e) => eprintln!("Error querying AI: {}", e),
+                Err(e) => eprintln!("Error sending message: {}", e),
+            }
+            match ai::create_run(thread_id,assistant_id).await {
+                Ok(response) => println!("{:?}", response),
+                Err(e) => eprintln!("Error running Assistant: {}",e),
             }
         }
         _ => {
