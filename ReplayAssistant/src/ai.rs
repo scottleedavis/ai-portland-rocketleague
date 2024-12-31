@@ -1,5 +1,5 @@
 use serde::{Deserialize,Serialize};
-use serde_json::json;
+use serde_json::{json,Value};
 use reqwest::{Client, multipart};
 use std::{env, fs::File, io,io::Read,error::Error};
 
@@ -173,8 +173,6 @@ async fn generate_assistant(instructions: &str, files: &[String]) -> Result<Stri
         // println!("Assistant created successfully: {}", response_text);
         let response_json: serde_json::Value = serde_json::from_str(&response_text)?;
         let assistant_id = response_json["id"].as_str().unwrap_or_default().to_string();
-        // let thread_id = create_thread().await?;
-        // let run_id = create_run(&assistant_id, &thread_id).await?;
         let id = create_thread_and_run(&assistant_id, PROMPT).await?;
         Ok(id)
     } else {
@@ -219,52 +217,7 @@ async fn create_thread_and_run(assistant_id: &str, prompt: &str) -> Result<Strin
     }
 }
 
-async fn create_thread() -> Result<String, Box<dyn Error>> {
-    let client = Client::new();
-    let api_key = env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY must be set");
-    let api_url = "https://api.openai.com/v1/threads";
-
-    let response = client
-        .post(api_url)
-        .header("Authorization", format!("Bearer {}", api_key))
-        .header("Content-Type", "application/json")
-        .header("OpenAI-Beta", "assistants=v2")
-        .send()
-        .await?;
-
-    let response: CreateThreadResponse = response.json().await?;
-
-    Ok(response.id)
-}
-
-async fn create_run(assistant_id: &str, thread_id: &str) -> Result<String, Box<dyn Error>> {
-    let client = Client::new();
-    let api_key = env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY must be set");
-    let api_url = format!("https://api.openai.com/v1/threads/{}/runs", thread_id);
-
-    let body = json!({"assistant_id": assistant_id});
-
-    let response = client
-        .post(&api_url)
-        .header("Authorization", format!("Bearer {}", api_key))
-        .header("Content-Type", "application/json")
-        .header("OpenAI-Beta", "assistants=v2")
-        .json(&body)
-        .send()
-        .await?;
-
-    if response.status().is_success() {
-        let response_json: serde_json::Value = response.json().await?;
-        println!("{:?}", response_json);
-        Ok(response_json["id"].as_str().unwrap_or_default().to_string())
-    } else {
-        let status = response.status();
-        let error_text = response.text().await?;
-        Err(format!("Failed to create run ({}): {}", status, error_text).into())
-    }
-}
-
-async fn create_message(thread_id: &str, prompt: &str) -> Result<String, Box<dyn Error>>  {
+pub async fn create_message(thread_id: &str, prompt: &str) -> Result<String, Box<dyn Error>>  {
     let client = Client::new();
     let api_key = env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY must be set");
     let api_url = format!("https://api.openai.com/v1/threads/{}/messages", thread_id);
@@ -304,8 +257,6 @@ pub async fn get_messages(thread_id: &str) -> Result<Vec<String>, Box<dyn Error>
     Ok(responses)
 }
 
-use serde_json::Value;
-
 fn parse_text_values(response_json: Value) -> Vec<String> {
     let mut text_values = Vec::new();
 
@@ -328,26 +279,3 @@ fn parse_text_values(response_json: Value) -> Vec<String> {
     text_values.reverse();
     return text_values;
 }
-
-
-// pub async fn prompt_assistant(thread_id: &str, prompt: &str) -> Result<String, Box<dyn Error>>  {
-
-//     if thread_id.is_empty() {
-//         return Err("Thread ID is required.".into());
-//     }
-
-//     println!("Thread ID: {}", thread_id);
-//     println!("Prompt: {}", prompt);
-
-//     if prompt.len() == 0 {
-
-//         let response = get_messages(&thread_id).await?;
-//         println!("{:?}", response);
-//     } else {
-//         // prompt.to_string()
-//         // TODO URL decode is needed 
-//         //now send the prompt to the thread
-//             // let response = create_message(&thread_id, &prompt_to_use).await?;
-//         Ok("slay".to_string())
-//     };
-// }

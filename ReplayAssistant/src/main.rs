@@ -76,20 +76,18 @@ async fn main() {
             }
         }
         "ai" => {
-            // if args.len() < 3 {
-            //     println!("Usage: ReplayAssistant ai <thread_id> [prompt]");
-            //     return;
-            // }
+            if args.len() < 4 {
+                println!("Usage: ReplayAssistant ai <thread_id> <prompt>");
+                return;
+            }
 
-            // let assistant_id = &args[2];
-            // // Set focus to "all" if not provided, otherwise pass the provided value
-            // let prompt = if args.len() > 3 { &args[3] } else { "" };
+            let thread_id = &args[2];
+            let prompt =  &args[3];
 
-            // println!("Querying AI for insights...");
-            // match ai::prompt_assistant(assistant_id, prompt).await {
-            //     Ok(response) => println!("AI feedback: {}",response),
-            //     Err(e) => eprintln!("Error querying AI: {}", e),
-            // }
+            match ai::create_message(thread_id, prompt).await {
+                Ok(response) => println!("{:?}",response),
+                Err(e) => eprintln!("Error querying AI: {}", e),
+            }
         }
         _ => {
             println!("Unknown command: {}", command);
