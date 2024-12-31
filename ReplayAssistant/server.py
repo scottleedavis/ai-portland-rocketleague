@@ -2,6 +2,7 @@ from flask import Flask, request
 import subprocess
 import shutil
 import os
+import urllib.parse
 
 app = Flask(__name__)
 
@@ -64,39 +65,28 @@ def messages(thread_id):
         return f"Command failed with error: {e}", 500
 
 
+@app.route('/query/<assistant_id>/<thread_id>/<query>', methods=['GET'])
+def query(assistant_id,thread_id, query):
 
-@app.route('/query/<thread_id>/<query>', methods=['GET'])
-def query(thread_id, query):
+    decoded_query = urllib.parse.unquote(query)
 
-    if query:
-        return f"thread_id: {thread_id}, Query: {query}", 200
-    return f"thread_id: {thread_id}, No query provided", 200
 
-    # # Construct the source and destination file paths
-    # source_file = os.path.join(replays_path, guid + ".replay")
-    # destination_file = os.path.join(replays_dest, guid + ".replay")
+    # return f"assistant_id: {assistant_id}, thread_id: {thread_id}, Query: {query}", 200
 
-    # # Copy the replay file to the ./replays directory
-    # try:
-    #     # Check if the source file exists
-    #     if not os.path.isfile(source_file):
-    #         return f"Replay file for GUID {guid} not found at {source_file}.", 404
-        
-    #     shutil.copy(source_file, destination_file)
-    # except Exception as e:
-    #     return f"Error copying file: {str(e)}", 500
-
-    # # Construct the command with the replay file in the ./replays directory
-    # command = ["./ReplayAssistant", "ai", prompt]
+    print("Got request for ",assistant_id,thread_id, decoded_query)
+    command = ["./ReplayAssistant", "prompt", assistant_id,thread_id, decoded_query]
     
-    # # Run the command
-    # try:
-    #     env = os.environ.copy()
-    #     subprocess.run(command, check=True, env=env) 
-    # except subprocess.CalledProcessError as e:
-    #     return f"Command failed with error: {e}", 500
+    try:
+        env = os.environ.copy()
+        
+        print("Running ReplayAssistant...")
+        result = subprocess.run(command, check=True, env=env, capture_output=True, text=True)
+        print("ReplayAssistant Thread Messages ",result)
+        return f"{result}", 200
 
-
+    except subprocess.CalledProcessError as e:
+        return f"Command failed with error: {e}", 500
+    
 
 if __name__ == '__main__':
     app.run(host='localhost', port=5000)
