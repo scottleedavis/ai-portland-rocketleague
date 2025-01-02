@@ -24,7 +24,7 @@ std::string thread_id = "";
 std::string assistant_id = "";
 std::shared_ptr<CVarManagerWrapper> _globalCvarManager;
 const std::string le_prompt = "checking out this replay of a car and ball practicing dribbling, until it touches ground. Give a brief one sentence recommendation to the player saying what was done well and/or what could improve.  Make your response no longer than nine words.";
-const std::string data_row_header = "time, car_x, car_y, car_z, car_pitch, car_roll, car_yaw, ball_x, ball_y, ball_z";
+const std::string data_row_header = "time, car_boost, car_x, car_y, car_z, car_pitch, car_roll, car_yaw, ball_x, ball_y, ball_z";
 const std::string replay_prepare = "replay_prepare";
 const std::string replay_prompt = "replay_prompt";
 const std::string replay_messages = "replay_messages";
@@ -195,7 +195,7 @@ void DribbleCoach::OnRecordTick()
     if (ball.IsNull() || car.IsNull())
         return;
     
-    std::string data_string = std::to_string(server.GetSecondsElapsed()) + "," + std::to_string(car.GetLocation().X) + "," + std::to_string(car.GetLocation().Y) + "," + std::to_string(car.GetLocation().Z) + "," + std::to_string(car.GetRotation().Pitch) + "," + std::to_string(car.GetRotation().Roll) + "," + std::to_string(car.GetRotation().Yaw) + "," + std::to_string(ball.GetLocation().X) + "," + std::to_string(ball.GetLocation().Y) + "," + std::to_string(ball.GetLocation().Z);
+    std::string data_string = std::to_string(server.GetSecondsElapsed()) + "," + std::to_string(car.GetBoostComponent().GetCurrentBoostAmount()) + "," + std::to_string(car.GetLocation().X) + "," + std::to_string(car.GetLocation().Y) + "," + std::to_string(car.GetLocation().Z) + "," + std::to_string(car.GetRotation().Pitch) + "," + std::to_string(car.GetRotation().Roll) + "," + std::to_string(car.GetRotation().Yaw) + "," + std::to_string(ball.GetLocation().X) + "," + std::to_string(ball.GetLocation().Y) + "," + std::to_string(ball.GetLocation().Z);
     playbackData.push_back(data_string);
 
 }
