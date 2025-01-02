@@ -14,7 +14,6 @@ class ReplayAssistant: public BakkesMod::Plugin::BakkesModPlugin
 	,public PluginWindowBase // Uncomment if you want to render your own plugin window
 {
 
-	std::thread freeplay_thread; 
 	std::thread replay_thread;
 	std::thread prompt_thread;
 
@@ -24,7 +23,6 @@ class ReplayAssistant: public BakkesMod::Plugin::BakkesModPlugin
 	int airDribbleResetKey3;
 
 	std::vector<std::string> playbackData;
-	std::string TrimString(const std::string& input);
 	std::string joinWithUrlEncodedSpace(const std::vector<std::string>& params);
 	std::vector<std::string> split_string_on_spaces(const std::string& input);
 	std::vector<std::string> split_string_on_comma(const std::string& input);

@@ -18,7 +18,7 @@
 
 BAKKESMOD_PLUGIN(ReplayAssistant, "ReplayAssistant", plugin_version, PLUGINTYPE_THREADED)
 
-bool isDribblen = false;
+
 std::string prompt = "";
 std::string thread_id = "";
 std::string assistant_id = "";
@@ -28,7 +28,6 @@ const std::string replay_prepare = "replay_prepare";
 const std::string replay_prompt = "replay_prompt";
 const std::string replay_messages = "replay_messages";
 
-std::string yonder_ai_text = "";
 
 void ReplayAssistant::LogWindow() {
     const float footerHeightToReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
@@ -470,21 +469,6 @@ void ReplayAssistant::PromptReplayAssistant(std::vector<std::string> params) {
 }
 
 
-std::string ReplayAssistant::TrimString(const std::string& input) {
-    size_t startPos = input.find("\"text\":"); 
-    if (startPos == std::string::npos) {
-        return ""; 
-    }
-
-    startPos += 8; 
-
-    size_t endPos = input.find("\"", startPos); 
-    if (endPos == std::string::npos) {
-        return "";
-    }
-    yonder_ai_text = input.substr(startPos, endPos - startPos);
-    return yonder_ai_text;
-}
 
 std::vector<std::string> ReplayAssistant::split_string_on_spaces(const std::string& input) {
     std::vector<std::string> result;
