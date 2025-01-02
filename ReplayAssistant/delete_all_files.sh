@@ -1,7 +1,5 @@
 #!/bin/bash
 
-echo $OPENAI_API_KEY
-
 # Function to fetch and delete files
 delete_all_files() {
   # Get the list of files
