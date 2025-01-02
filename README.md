@@ -23,16 +23,9 @@ Rocket League is a fast-paced game that demands quick reflexes, precise control,
 
 ### 2. [ReplayAssistant](./ReplayAssistant/README.md) **: Replay Prompt**
 ![ReplayAssistantPrepare.png](ReplayAssistant.png)
-   - **Description**: Extracts replay data and creates an OpenAI assistant available on the current replay.
-
-available debug console commands
-```bash
-replay_prepare
-replay_messages
-replay_prompt How many times did I hit the ball?
-```
+   - **Description**: Extracts replay data and creates an OpenAI assistant console available on the current replay.
    - **ToDo**:
-     - Provide imgui prompt console during replay
+     - Improve the usability of the prompt
 
 ## Objectives
 
