@@ -140,6 +140,9 @@
     <ClInclude Include="GuiBase.h">
       <Filter>Plugin\header</Filter>
     </ClInclude>
+    <ClInclude Include="imgui_markdown.h">
+      <Filter>Plugin\header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ReplayAssistant.rc">

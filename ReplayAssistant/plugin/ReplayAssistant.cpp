@@ -28,6 +28,57 @@ const std::string replay_prepare = "replay_prepare";
 const std::string replay_prompt = "replay_prompt";
 const std::string replay_messages = "replay_messages";
 
+static ImGui::MarkdownConfig mdConfig;
+
+void MarkdownFormatCallback(const ImGui::MarkdownFormatInfo& markdownFormatInfo_, bool start_)
+{
+    // Call the default first so any settings can be overwritten by our implementation.
+    // Alternatively could be called or not called in a switch statement on a case by case basis.
+    // See defaultMarkdownFormatCallback definition for furhter examples of how to use it.
+    ImGui::defaultMarkdownFormatCallback(markdownFormatInfo_, start_);
+
+    switch (markdownFormatInfo_.type)
+    {
+        // example: change the colour of heading level 2
+    case ImGui::MarkdownFormatType::HEADING:
+    {
+        if (markdownFormatInfo_.level == 2)
+        {
+            if (start_)
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
+            }
+            else
+            {
+                ImGui::PopStyleColor();
+            }
+        }
+        break;
+    }
+    default:
+    {
+        break;
+    }
+    }
+}
+
+static ImFont* H1 = NULL;
+static ImFont* H2 = NULL;
+static ImFont* H3 = NULL;
+
+void Markdown(const std::string& markdown_)
+{
+    //mdConfig.linkCallback = LinkCallback;
+    mdConfig.tooltipCallback = NULL;
+    //mdConfig.imageCallback = ImageCallback;
+    //mdConfig.linkIcon = ICON_FA_LINK;
+    mdConfig.headingFormats[0] = { H1, true };
+    mdConfig.headingFormats[1] = { H2, true };
+    mdConfig.headingFormats[2] = { H3, false };
+    mdConfig.userData = NULL;
+    mdConfig.formatCallback = MarkdownFormatCallback;
+    ImGui::Markdown(markdown_.c_str(), markdown_.length(), mdConfig);
+}
 
 void ReplayAssistant::LogWindow() {
     const float footerHeightToReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
@@ -35,8 +86,16 @@ void ReplayAssistant::LogWindow() {
     {
         ImGui::PushTextWrapPos();
 
+        //for (const std::string& item : m_ConsoleSystem) {
+        //    //ImGui::TextUnformatted(item.c_str());
+        //    Markdown(item.c_str());
+        //    //ImGui::Separator();
+        //}          
+        std::stringstream ss;
         for (const std::string& item : m_ConsoleSystem)
-            ImGui::TextUnformatted(item.c_str());
+            ss << item << "\n"; 
+        std::string joined_string = ss.str();
+        Markdown(joined_string.c_str());
 
         ImGui::PopTextWrapPos();
 
@@ -81,14 +140,19 @@ void ReplayAssistant::InputBar() {
 
 void ReplayAssistant::RenderWindow() {
 
-    // https://github.com/ocornut/imgui/blob/e9743d85ddc0986c6babaa01fd9e641a47b282f3/imgui_demo.cpp#L6523-L6884
-    // to do https://github.com/rmxbalanque/imgui-console/blob/master/src/imgui_console.cpp
+    if (ImGui::Button("Get Messages"))
+    {
+        this->checkMessages();
+    }
+    ImGui::Separator();
+
 
     this->LogWindow();
 
     ImGui::Separator();
 
     this->InputBar();
+
 
 }
 
@@ -502,21 +566,51 @@ std::vector<std::string> ReplayAssistant::split_string_on_comma(const std::strin
     std::vector<std::string> result;
 
     // Remove the square brackets at the start and end of the input string
-    std::string cleaned_input = input.substr(1, input.size() - 2);
+    std::string cleaned_input = input.substr(2, input.size());
+    cleaned_input.erase(cleaned_input.length() - 3);
 
+    std::string cleaned_input2;
     size_t pos = 0;
-    std::string token;
 
-    // Split by ", " delimiter
-    while ((pos = cleaned_input.find("\", \"")) != std::string::npos) {
-        token = cleaned_input.substr(0, pos); // Extract the part before ", "
-        result.push_back(token); // Store in the result vector
-        cleaned_input.erase(0, pos + 4); // Remove the processed part
+    // Loop through and replace literal \n (backslash + n) with "\", \""
+    for (size_t i = 0; i < cleaned_input.size(); ++i) {
+        if (cleaned_input[i] == '\\' && i + 1 < cleaned_input.size() && cleaned_input[i + 1] == 'n') {
+            cleaned_input2 += "\", \"";  // Replace literal \n with ", "
+            ++i;  // Skip over the 'n' in "\n"
+        }
+        else {
+            cleaned_input2 += cleaned_input[i];  // Keep the character as is
+        }
     }
 
-    // Add the last part (if any)
-    if (!cleaned_input.empty()) {
-        result.push_back(cleaned_input);
+
+    // Now, replace "user:" with "user:", " and "assistant:" with "assistant:", "
+    std::string cleaned_input3;
+    for (size_t i = 0; i < cleaned_input2.size(); ++i) {
+        if (i + 4 < cleaned_input2.size() && cleaned_input2.substr(i, 5) == "user:") {
+            cleaned_input3 += "user:\", \"";  // Replace "user:" with "user:", "
+            i += 4; // Skip over "user:"
+        }
+        else if (i + 9 < cleaned_input2.size() && cleaned_input2.substr(i, 10) == "assistant:") {
+            cleaned_input3 += "assistant:\", \"";  // Replace "assistant:" with "assistant:", "
+            i += 9; // Skip over "assistant:"
+        }
+        else {
+            cleaned_input3 += cleaned_input2[i];  // Keep the character as is
+        }
+    }
+
+    // Now split the cleaned input string by the delimiter "\", \""
+    std::string token;
+    while ((pos = cleaned_input3.find("\", \"")) != std::string::npos) {
+        token = cleaned_input3.substr(0, pos);  // Extract the part before "\", \""
+        result.push_back(token);  // Store in the result vector
+        cleaned_input3.erase(0, pos + 4);  // Remove the processed part (", \"")
+    }
+
+    // Add the last part (if any) after the final split
+    if (!cleaned_input3.empty()) {
+        result.push_back(cleaned_input3);
     }
 
     return result;
