@@ -22,7 +22,7 @@ Rocket League is a fast-paced game that demands quick reflexes, precise control,
      - Provide flick feedback.
 
 ### 2. [ReplayAssistant](./ReplayAssistant/README.md) **: Replay Prompt**
-![ReplayAssistantPrepare.png](ReplayAssistantPrepare.png)
+![ReplayAssistantPrepare.png](ReplayAssistant.png)
    - **Description**: Extracts replay data and creates an OpenAI assistant available on the current replay.
 
 available debug console commands
