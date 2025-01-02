@@ -4,6 +4,8 @@ import shutil
 import os
 import urllib.parse
 
+#TODO clean up uploaded files after use
+
 app = Flask(__name__)
 
 replays_path = "/mnt/c/Users/gamez/OneDrive/Documents/My Games/Rocket League/TAGame/DemosEpic/"
@@ -32,7 +34,7 @@ def handle_replay(guid):
     try:
         env = os.environ.copy()
         
-        print("Running ReplayAssistant...")
+        print("Running ReplayAssistant prepare...")
         result = subprocess.run(command, check=True, env=env, capture_output=True, text=True)
         print(result)
         
@@ -56,10 +58,10 @@ def messages(thread_id):
     try:
         env = os.environ.copy()
         
-        print("Running ReplayAssistant...")
+        print("Running ReplayAssistant messages...")
         result = subprocess.run(command, check=True, env=env, capture_output=True, text=True)
-        print("ReplayAssistant Thread Messages ",result)
-        return f"{result}", 200
+        print("ReplayAssistant Thread Messages ",result.stdout)
+        return f"{result.stdout}", 200
 
     except subprocess.CalledProcessError as e:
         return f"Command failed with error: {e}", 500
@@ -79,7 +81,7 @@ def query(assistant_id,thread_id, query):
     try:
         env = os.environ.copy()
         
-        print("Running ReplayAssistant...")
+        print("Running ReplayAssistant prompt...")
         result = subprocess.run(command, check=True, env=env, capture_output=True, text=True)
         print("ReplayAssistant Thread Messages ",result)
         return f"{result}", 200

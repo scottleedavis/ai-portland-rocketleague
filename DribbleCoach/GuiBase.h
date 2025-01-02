@@ -15,7 +15,7 @@ public:
 	virtual ~PluginWindowBase() = default;
 
 	bool isWindowOpen_ = false;
-	std::string menuTitle_ = "AICoachBakkesPlugin";
+	std::string menuTitle_ = "DribbleCoach";
 
 	std::string GetMenuName() override;
 	std::string GetMenuTitle() override;

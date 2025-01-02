@@ -3,7 +3,7 @@
 
 std::string SettingsWindowBase::GetPluginName()
 {
-	return "AICoachBakkesPlugin";
+	return "DribbleCoach";
 }
 
 void SettingsWindowBase::SetImGuiContext(uintptr_t ctx)
@@ -13,7 +13,7 @@ void SettingsWindowBase::SetImGuiContext(uintptr_t ctx)
 
 std::string PluginWindowBase::GetMenuName()
 {
-	return "AICoachBakkesPlugin";
+	return "DribbleCoach";
 }
 
 std::string PluginWindowBase::GetMenuTitle()

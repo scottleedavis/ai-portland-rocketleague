@@ -31,6 +31,73 @@ const std::string replay_messages = "replay_messages";
 
 std::string yonder_ai_text = "";
 
+void DribbleCoach::LogWindow() {
+    const float footerHeightToReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+    if (ImGui::BeginChild("ScrollRegion##", ImVec2(0, -footerHeightToReserve), false, 0))
+    {
+        ImGui::PushTextWrapPos();
+
+        for (const std::string& item : m_ConsoleSystem)
+            ImGui::TextUnformatted(item.c_str());
+
+        ImGui::PopTextWrapPos();
+
+        if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+            ImGui::SetScrollHereY(1.0f);
+
+        ImGui::EndChild();
+    }
+}
+
+void DribbleCoach::InputBar() {
+
+    ImGuiInputTextFlags inputTextFlags =
+        ImGuiInputTextFlags_CallbackHistory | ImGuiInputTextFlags_CallbackCharFilter | ImGuiInputTextFlags_CallbackCompletion |
+        ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackAlways;
+
+    bool reclaimFocus = false;
+
+    ImGui::PushItemWidth(-ImGui::GetStyle().ItemSpacing.x * 7);
+    if (ImGui::InputText("Send", &m_Buffer[0], m_Buffer.capacity(), inputTextFlags, DribbleCoach::InputCallback, this))
+    {
+        if (!m_Buffer.empty())
+        {
+            std::string message = "user: " + m_Buffer;
+            LOG(message);
+            m_ConsoleSystem.push_back(message);
+
+            this->OnPromptAssistant(this->split_string_on_spaces(m_Buffer));
+            
+
+        }
+
+        reclaimFocus = true;
+
+    }
+    ImGui::PopItemWidth();
+
+    ImGui::SetItemDefaultFocus();
+    if (reclaimFocus)
+        ImGui::SetKeyboardFocusHere(-1); // Focus on command line after clearing.
+}
+
+void DribbleCoach::RenderWindow() {
+
+    // https://github.com/ocornut/imgui/blob/e9743d85ddc0986c6babaa01fd9e641a47b282f3/imgui_demo.cpp#L6523-L6884
+    // to do https://github.com/rmxbalanque/imgui-console/blob/master/src/imgui_console.cpp
+
+    this->LogWindow();
+
+    ImGui::Separator();
+
+    this->InputBar();
+
+}
+
+void DribbleCoach::RenderSettings() {
+    LOG("settings render");
+}
+
 void DribbleCoach::onLoad()
 {
     _globalCvarManager = cvarManager;
@@ -56,7 +123,7 @@ void DribbleCoach::OnReplayAssistant()
     replay_thread.detach();
 }
 
-void DribbleCoach::OnQueryAssistant(std::vector<std::string> params)
+void DribbleCoach::OnPromptAssistant(std::vector<std::string> params)
 {
     ReplayServerWrapper gew = gameWrapper->GetGameEventAsReplay();
     LOG("Prompting replay...");
@@ -72,7 +139,7 @@ void DribbleCoach::OnCommand(std::vector<std::string> params)
         this->OnReplayAssistant();
     } else if (command.compare(replay_prompt) == 0) {
         params.erase(params.begin());
-        this->OnQueryAssistant(params);
+        this->OnPromptAssistant(params);
     }
     else if (command.compare(replay_messages) == 0) {
         this->checkMessages();
@@ -402,7 +469,8 @@ void DribbleCoach::checkMessages()
     WinHttpCloseHandle(hConnect);
     WinHttpCloseHandle(hSession);
 
-//
+    m_ConsoleSystem.clear();
+    m_ConsoleSystem = this->split_string_on_comma(latest_thread_messages);
 
     LOG("Assistant thread messages...");// : \n" + latest_thread_messages + "\n");
 
@@ -648,6 +716,18 @@ std::string DribbleCoach::TrimString(const std::string& input) {
     return yonder_ai_text;
 }
 
+std::vector<std::string> DribbleCoach::split_string_on_spaces(const std::string& input) {
+    std::vector<std::string> result;
+    std::stringstream ss(input);
+    std::string word;
+
+    while (ss >> word) {
+        result.push_back(word);
+    }
+
+    return result;
+}
+
 std::string DribbleCoach::joinWithUrlEncodedSpace(const std::vector<std::string>& params) {
     if (params.empty()) {
         return "";  // Return empty string if the vector is empty
@@ -664,3 +744,26 @@ std::string DribbleCoach::joinWithUrlEncodedSpace(const std::vector<std::string>
     return oss.str();
 }
 
+std::vector<std::string> DribbleCoach::split_string_on_comma(const std::string& input) {
+    std::vector<std::string> result;
+
+    // Remove the square brackets at the start and end of the input string
+    std::string cleaned_input = input.substr(1, input.size() - 2);
+
+    size_t pos = 0;
+    std::string token;
+
+    // Split by ", " delimiter
+    while ((pos = cleaned_input.find("\", \"")) != std::string::npos) {
+        token = cleaned_input.substr(0, pos); // Extract the part before ", "
+        result.push_back(token); // Store in the result vector
+        cleaned_input.erase(0, pos + 4); // Remove the processed part
+    }
+
+    // Add the last part (if any)
+    if (!cleaned_input.empty()) {
+        result.push_back(cleaned_input);
+    }
+
+    return result;
+}
