@@ -1,5 +1,5 @@
 # ai-portland-rocketleague
-Materials/code for a [10 minute presentation](https://www.meetup.com/ai-portland/events/303283141/?eventOrigin=group_upcoming_events) for an [AI Portland](https://creators.spotify.com/pod/show/superchargedbyai/) event.
+Materials/code for a [short (<10m) presentation](https://www.meetup.com/ai-portland/events/303283141/?eventOrigin=group_upcoming_events) for an [AI Portland](https://creators.spotify.com/pod/show/superchargedbyai/) event.
 
 Here are the [Presentation Slides](./Presentation.pdf)
 
