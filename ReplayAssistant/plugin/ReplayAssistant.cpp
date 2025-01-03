@@ -432,6 +432,8 @@ void ReplayAssistant::PromptReplayAssistant(std::vector<std::string> params) {
     WinHttpCloseHandle(hSession);
 
     LOG("Replay prompted.");
+
+    m_Buffer = "";
 }
 
 
