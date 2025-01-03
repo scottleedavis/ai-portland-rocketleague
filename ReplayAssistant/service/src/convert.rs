@@ -193,7 +193,7 @@ pub fn parse_frames(data: &Value, file: &mut dyn Write) -> Result<(), Box<dyn st
     let mut lines: Vec<String> = Vec::new();
     let mut ball_id = String::new(); 
     let ball_prefix = "\"Archetypes.Ball.Ball_";
-    lines.push("frame,time,team,player_name,boost,location_x,location_y,location_z,rotation_x,rotation_y,rotation_z,rotation_w,angular_velocity_x,angular_velocity_y,angular_velocity_z,linear_velocity_x,linear_velocity_y,linear_velocity_z".to_string());
+    lines.push("Frame,Time,Team,Player_name,Boost,Location_x,Location_y,Location_z,Rotation_x,Rotation_y,Rotation_z,Rotation_w,Angular_velocity_x,Angular_velocity_y,Angular_velocity_z,Linear_velocity_x,Linear_velocity_y,Linear_velocity_z".to_string());
 
     for (frame_index, frame) in frames.iter().enumerate() {
 

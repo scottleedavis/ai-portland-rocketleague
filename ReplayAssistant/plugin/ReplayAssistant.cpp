@@ -183,7 +183,7 @@ void ReplayAssistant::checkMessages()
     m_ConsoleSystem.clear();
     m_ConsoleSystem = this->split_string_on_comma(latest_thread_messages);
 
-    LOG("Assistant thread messages...");// : \n" + latest_thread_messages + "\n");
+    LOG("Assistant thread messages...");
 
 }
 
@@ -299,6 +299,9 @@ void ReplayAssistant::PrepareReplay(const std::string& replayFileName)
     assistant_id = assistant;
     LOG("Assistant thread created: "+ assistant_thread_id);
     gameWrapper->Toast("Assistant created!", "You can now interact.", "cool", 5.0, ToastType_Info);
+
+    replay_thread = std::thread(std::bind(&ReplayAssistant::checkMessages, this));
+    replay_thread.detach();
 
 }
 
@@ -611,7 +614,8 @@ void ReplayAssistant::RenderWindow() {
     ImGui::SameLine();
     if (ImGui::Button("Get Messages"))
     {
-        this->checkMessages();
+        replay_thread = std::thread(std::bind(&ReplayAssistant::checkMessages, this));
+        replay_thread.detach();
     }
     ImGui::Separator();
 

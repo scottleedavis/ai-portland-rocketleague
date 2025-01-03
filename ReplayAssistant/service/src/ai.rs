@@ -59,7 +59,7 @@ struct CreateRunRequest {
 
 const INSTRUCTIONS: &str = "You are a world-class Rocket League team coach. You analyze data present in .csv files, understand trends, create data visualizations relevant to those trends, and share brief text summaries of observed trends. Your insights help improve team gameplay. Analyze team positioning, rotations, and overall synergy.";
     
-const PROMPT: &str = "Evaluate the replay on boost efficiency, aerial control, and shot accuracy using the csv files. The csv files are linked by a primary key column 'Frame'. Provide insights on situational awareness, risk/reward trade-offs, mechanical highlights. Also focus on team play, identifying dominant roles.";
+const PROMPT: &str = "Evaluate the replay on boost efficiency, aerial control, and shot accuracy using the csv files. The 3 csv files are linked by a primary key column 'Frame', and one is overall player statistics. Provide insights on situational awareness, risk/reward trade-offs, mechanical highlights. Also focus on team play, identifying dominant roles.";
 
 pub async fn create_assistant(match_guid: &str) -> io::Result<String> {
 
