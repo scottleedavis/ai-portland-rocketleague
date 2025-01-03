@@ -11,7 +11,7 @@
 3. **Stream based textual feedback**:
    - Outputs from the OpenAI stream are displayed in a console window during a replay as they are received.
 
-## Plugin Installation : [/plugin](plugin/)
+## Plugin Installation : [plugin/](plugin/)
 
 1. **Prerequisites**:
    - Ensure [BakkesMod](https://bakkesmod.com/) is installed.
@@ -32,7 +32,7 @@
 
 - Improve markdown rendering quality with images and fonts.
 
-# ReplayAssistant Service [./service](service/)
+# ReplayAssistant Service [service/](service/)
 
 **ReplayAssistant** is a command-line tool, written in Rust, parses binary replay files into csv files, and connects them to an OpenAI Assistant with instructions. ReplayAssistant extracts tactical insights, performance metrics, and actionable feedback designed to elevate gameplay.
 
