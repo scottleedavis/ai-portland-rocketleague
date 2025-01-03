@@ -4,8 +4,6 @@ import shutil
 import os
 import urllib.parse
 
-#TODO clean up uploaded files after use
-
 app = Flask(__name__)
 
 replays_path = "/mnt/c/Users/gamez/OneDrive/Documents/My Games/Rocket League/TAGame/DemosEpic/"
