@@ -1,6 +1,6 @@
 # ReplayAssistant
 
-ReplayAssistant is a BakkesMod plugin designed to provide real-time ground and air dribbling coaching feedback during freeplay in Rocket League. By leveraging Anthropic's Claude 3.5-Sonnet model, it evaluates ball and car positions and car pitch,roll and yaw to offer actionable insights directly on-screen, helping players refine their dribbling mechanics.
+ReplayAssistant is a BakkesMod plugin designed to provide an OpenAI assisnt prompt in a window during a replay.
 
 ## Features
 
