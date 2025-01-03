@@ -10,17 +10,15 @@
 
 1. Obtain an API key for the Open AI
 
-2. Set Environment Variable:
+2. Set Environment:
      ```bash
      export OPENAI_API_KEY=<your_openai_api_key>
+     python -m venv venv
      ```
-3. Test Single Run of ReplayAssistant:
+3. Run Server
      ```bash
-      ./ReplayAssistant analyze ./examples/363cf8d9-8d7f-4c55-95a8-b97edbab0449.replay 
-     ```
-4. Run Server
-     ```bash
-     python server.py
+     source venv/bin/activate
+     ./run.sh
      ```
 
 ## How It Works
