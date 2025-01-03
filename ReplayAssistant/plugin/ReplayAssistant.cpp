@@ -5,6 +5,9 @@
 #include <winhttp.h>
 #include <string>
 #include <sstream>
+#include <thread>
+#include <chrono>
+#include <functional>
 
 #include "ReplayAssistant.h"
 #include "bakkesmod/plugin/bakkesmodplugin.h"
@@ -24,8 +27,8 @@ std::string thread_id = "";
 std::string assistant_id = "";
 std::shared_ptr<CVarManagerWrapper> _globalCvarManager;
 
-const std::string replay_prepare = "replay_prepare";
-const std::string replay_prompt = "replay_prompt";
+const std::string replay_prepare  = "replay_prepare";
+const std::string replay_prompt   = "replay_prompt";
 const std::string replay_messages = "replay_messages";
 
 
@@ -46,7 +49,15 @@ void ReplayAssistant::onLoad()
 }
 
 void ReplayAssistant::onReplayLoaded() {
-    this->Render();
+
+    if (gameWrapper->GetCurrentGameState().GetSecondsElapsed() < 1.0f) {
+        m_ConsoleSystem.clear();
+        prompt = "";
+        thread_id = "";
+        assistant_id = "";
+    }
+    if (gameWrapper->IsInReplay())
+        this->Render();
 }
 
 void ReplayAssistant::OnReplayAssistant()
@@ -82,6 +93,9 @@ void ReplayAssistant::OnCommand(std::vector<std::string> params)
 
 void ReplayAssistant::checkMessages()
 {
+
+    if (!gameWrapper->IsInReplay())
+        return;
 
     LOG("Waiting....");
     HINTERNET hSession = WinHttpOpen(
@@ -184,7 +198,12 @@ void ReplayAssistant::checkMessages()
     m_ConsoleSystem = this->split_string_on_comma(latest_thread_messages);
 
     LOG("Assistant thread messages...");
-
+    if (!gameWrapper->IsInReplay())
+        return;
+    // Delay for 5 seconds
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+    replay_thread = std::thread(std::bind(&ReplayAssistant::checkMessages, this));
+    replay_thread.detach();
 }
 
 void ReplayAssistant::PrepareReplay(const std::string& replayFileName)
@@ -300,6 +319,9 @@ void ReplayAssistant::PrepareReplay(const std::string& replayFileName)
     LOG("Assistant thread created: "+ assistant_thread_id);
     gameWrapper->Toast("Assistant created!", "You can now interact.", "cool", 5.0, ToastType_Info);
 
+    if (!gameWrapper->IsInReplay())
+        return;
+
     replay_thread = std::thread(std::bind(&ReplayAssistant::checkMessages, this));
     replay_thread.detach();
 
@@ -409,8 +431,6 @@ void ReplayAssistant::PromptReplayAssistant(std::vector<std::string> params) {
     WinHttpCloseHandle(hConnect);
     WinHttpCloseHandle(hSession);
 
-//
-
     LOG("Replay prompted.");
 }
 
@@ -490,7 +510,6 @@ std::vector<std::string> ReplayAssistant::split_string_on_comma(const std::strin
         cleaned_input3.erase(0, pos + 4);  // Remove the processed part (", \"")
     }
 
-    // Add the last part (if any) after the final split
     if (!cleaned_input3.empty()) {
         result.push_back(cleaned_input3);
     }
@@ -500,14 +519,11 @@ std::vector<std::string> ReplayAssistant::split_string_on_comma(const std::strin
 
 void MarkdownFormatCallback(const ImGui::MarkdownFormatInfo& markdownFormatInfo_, bool start_)
 {
-    // Call the default first so any settings can be overwritten by our implementation.
-    // Alternatively could be called or not called in a switch statement on a case by case basis.
-    // See defaultMarkdownFormatCallback definition for furhter examples of how to use it.
+
     ImGui::defaultMarkdownFormatCallback(markdownFormatInfo_, start_);
 
     switch (markdownFormatInfo_.type)
     {
-        // example: change the colour of heading level 2
     case ImGui::MarkdownFormatType::HEADING:
     {
         if (markdownFormatInfo_.level == 2)
@@ -601,22 +617,26 @@ void ReplayAssistant::InputBar() {
 
     ImGui::SetItemDefaultFocus();
     if (reclaimFocus)
-        ImGui::SetKeyboardFocusHere(-1); // Focus on command line after clearing.
+        ImGui::SetKeyboardFocusHere(-1); 
 }
 
 void ReplayAssistant::RenderWindow() {
 
-    if (ImGui::Button("Prepare Replay"))
+    if (ImGui::Button("Activate Assistant"))
     {
+        m_ConsoleSystem.clear();
+        prompt = "";
+        thread_id = "";
+        assistant_id = "";
         this->OnReplayAssistant();
         gameWrapper->Toast("Preparing Assistant...", "Lets go", "cool", 5.0, ToastType_Info);
     }
-    ImGui::SameLine();
-    if (ImGui::Button("Get Messages"))
-    {
-        replay_thread = std::thread(std::bind(&ReplayAssistant::checkMessages, this));
-        replay_thread.detach();
-    }
+    //ImGui::SameLine();
+    //if (ImGui::Button("Get Messages"))
+    //{
+    //    replay_thread = std::thread(std::bind(&ReplayAssistant::checkMessages, this));
+    //    replay_thread.detach();
+    //}
     ImGui::Separator();
 
 

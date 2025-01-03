@@ -10,3 +10,4 @@ output/*.txt
 output/*.md
 rattletrap*
 venv
+replays/*.replay
