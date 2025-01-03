@@ -26,6 +26,8 @@ Rocket League is a fast-paced game that demands quick reflexes, precise control,
    - **Description**: Extracts replay data and creates an OpenAI assistant console available on the current replay.
    - **ToDo**:
      - Improve the usability of the prompt
+     - linking to prompt bidirectional communicaiton on current frame/timestamp/location
+     - annotations/screenshot sharing like the [replay plugin](https://bakkesplugins.com/plugins/view/173))
 
 ## Objectives
 
