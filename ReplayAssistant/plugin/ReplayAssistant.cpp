@@ -55,6 +55,7 @@ void ReplayAssistant::onReplayLoaded() {
         prompt = "";
         thread_id = "";
         assistant_id = "";
+        m_Buffer = std::string(1000, '\0');
     }
     if (gameWrapper->IsInReplay())
         this->Render();
@@ -433,7 +434,7 @@ void ReplayAssistant::PromptReplayAssistant(std::vector<std::string> params) {
 
     LOG("Replay prompted.");
 
-    m_Buffer = "";
+    m_Buffer = std::string(1000, '\0');
 }
 
 
@@ -599,7 +600,7 @@ void ReplayAssistant::InputBar() {
     bool reclaimFocus = false;
 
     ImGui::PushItemWidth(-ImGui::GetStyle().ItemSpacing.x * 7);
-    if (ImGui::InputText("Send", &m_Buffer[0], m_Buffer.capacity(), inputTextFlags, ReplayAssistant::InputCallback, this))
+    if (ImGui::InputText("", &m_Buffer[0], m_Buffer.capacity(), inputTextFlags, ReplayAssistant::InputCallback, this))
     {
         if (!m_Buffer.empty())
         {
@@ -608,7 +609,7 @@ void ReplayAssistant::InputBar() {
             m_ConsoleSystem.push_back(message);
 
             this->OnPromptAssistant(this->split_string_on_spaces(m_Buffer));
-
+            m_Buffer = std::string(1000, '\0');
 
         }
 
