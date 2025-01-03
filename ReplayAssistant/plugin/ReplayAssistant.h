@@ -29,6 +29,7 @@ class ReplayAssistant: public BakkesMod::Plugin::BakkesModPlugin
 	std::vector<std::string> split_string_on_comma(const std::string& input);
 	std::string m_Buffer = std::string(1000, '\0');  // Initialize with 1000 characters
 	std::vector<std::string> m_ConsoleSystem;
+	void onReplayLoaded();
 
 public:
 	void checkMessages();

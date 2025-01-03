@@ -86,11 +86,6 @@ void ReplayAssistant::LogWindow() {
     {
         ImGui::PushTextWrapPos();
 
-        //for (const std::string& item : m_ConsoleSystem) {
-        //    //ImGui::TextUnformatted(item.c_str());
-        //    Markdown(item.c_str());
-        //    //ImGui::Separator();
-        //}          
         std::stringstream ss;
         for (const std::string& item : m_ConsoleSystem)
             ss << item << "\n"; 
@@ -140,6 +135,12 @@ void ReplayAssistant::InputBar() {
 
 void ReplayAssistant::RenderWindow() {
 
+    if (ImGui::Button("Prepare Replay"))
+    {
+       this->OnReplayAssistant();
+        gameWrapper->Toast("Preparing Assistant...", "Lets go", "cool", 5.0, ToastType_Info);
+    }
+    ImGui::SameLine();
     if (ImGui::Button("Get Messages"))
     {
         this->checkMessages();
@@ -167,8 +168,13 @@ void ReplayAssistant::onLoad()
     cvarManager->registerNotifier(replay_prepare, std::bind(&ReplayAssistant::OnCommand, this, std::placeholders::_1), "Starts/stops replay analysis", PERMISSION_REPLAY);
     cvarManager->registerNotifier(replay_prompt, std::bind(&ReplayAssistant::OnCommand, this, std::placeholders::_1), "Queries AI on current replay", PERMISSION_REPLAY);
     cvarManager->registerNotifier(replay_messages, std::bind(&ReplayAssistant::OnCommand, this, std::placeholders::_1), "Gets latest Assistant messages", PERMISSION_REPLAY);
+    gameWrapper->HookEvent("Function GameEvent_Soccar_TA.Countdown.BeginState", std::bind(&ReplayAssistant::onReplayLoaded, this));
 
     LOG("Loaded.");
+}
+
+void ReplayAssistant::onReplayLoaded() {
+    this->Render();
 }
 
 void ReplayAssistant::OnReplayAssistant()
@@ -420,6 +426,7 @@ void ReplayAssistant::PrepareReplay(const std::string& replayFileName)
     thread_id = thread;
     assistant_id = assistant;
     LOG("Assistant thread created: "+ assistant_thread_id);
+    gameWrapper->Toast("Assistant created!", "You can now interact.", "cool", 5.0, ToastType_Info);
 
 }
 
