@@ -70,9 +70,6 @@ def query(assistant_id,thread_id, query):
 
     decoded_query = urllib.parse.unquote(query)
 
-
-    # return f"assistant_id: {assistant_id}, thread_id: {thread_id}, Query: {query}", 200
-
     print("Got request for ",assistant_id,thread_id, decoded_query)
     command = ["./ReplayAssistant", "prompt", assistant_id,thread_id, decoded_query]
     
