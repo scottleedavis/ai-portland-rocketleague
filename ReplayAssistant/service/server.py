@@ -6,7 +6,13 @@ import urllib.parse
 
 app = Flask(__name__)
 
-replays_path = "/mnt/c/Users/gamez/OneDrive/Documents/My Games/Rocket League/TAGame/DemosEpic/"
+import os
+
+# Dynamically get the username
+username = os.getlogin()
+
+# Construct the path using the username
+replays_path = f"/mnt/c/Users/{username}/OneDrive/Documents/My Games/Rocket League/TAGame/DemosEpic/"
 replays_dest = "./replays" 
 
 if not os.path.exists(replays_dest):

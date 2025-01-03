@@ -49,12 +49,15 @@
      export OPENAI_API_KEY=<your_openai_api_key>
      python -m venv venv
      ```
-3. Run Server
+3. Build Server
+     ```bash
+     ./build.sh
+     ```
+4. Run Server
      ```bash
      source venv/bin/activate
      ./run.sh
      ```
-
 ---
 
 ### Installation
