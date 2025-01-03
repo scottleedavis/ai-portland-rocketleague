@@ -1,6 +1,6 @@
 # DribbleCoach
 
-DribbleCoach is a BakkesMod plugin designed to provide real-time ground and air dribbling coaching feedback during freeplay in Rocket League. By leveraging Anthropic's Claude 3.5-Sonnet model, it evaluates ball and car positions and car pitch,roll and yaw to offer actionable insights directly on-screen, helping players refine their dribbling mechanics.
+DribbleCoach is a BakkesMod plugin designed to provide ground and air dribbling coaching feedback during freeplay in Rocket League. 
 
 ## Features
 
