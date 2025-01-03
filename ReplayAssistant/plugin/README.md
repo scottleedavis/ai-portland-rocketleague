@@ -2,12 +2,6 @@
 
 ReplayAssistant is a BakkesMod plugin designed to provide an OpenAI assisnt prompt in a window during a replay.
 
-## Features
-
-- **Real-Time Analysis**: Monitors dribbling skills during freeplay sessions.
-- **Actionable Feedback**: Offers suggestions on timing, positioning, and ball control.
-- **Immediate Insights**: Provides on-screen advice to help players adjust their mechanics in real-time.
-
 ## Installation
 
 1. **Prerequisites**:
