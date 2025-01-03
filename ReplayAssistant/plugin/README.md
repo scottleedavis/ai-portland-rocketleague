@@ -22,7 +22,7 @@ ReplayAssistant is a BakkesMod plugin designed to provide an OpenAI assisnt prom
 
 ## Future Goals
 
-- Extend feedback capabilities to include air dribbling and flick mechanics.
+- Improve markdown rendering quality with images and fonts.
 
 ## License
 
