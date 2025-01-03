@@ -11,3 +11,4 @@ output/*.md
 rattletrap*
 venv
 replays/*.replay
+ReplayAssistant

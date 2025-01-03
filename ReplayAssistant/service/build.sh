@@ -1,5 +1,5 @@
 #!/bin/bash
 
-cargo build --relase
+cargo build --release
 cp ./target/release/ReplayAssistant .
 

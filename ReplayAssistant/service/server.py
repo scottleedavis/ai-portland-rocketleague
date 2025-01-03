@@ -6,10 +6,12 @@ import urllib.parse
 
 app = Flask(__name__)
 
-import os
+# Run 'whoami' and get the username
+username = subprocess.check_output("whoami", shell=True).decode().strip().split("\\")[-1]
 
-# Dynamically get the username
-username = os.getlogin()
+# Construct the path using the username
+replays_path = f"/mnt/c/Users/{username}/OneDrive/Documents/My Games/Rocket League/TAGame/DemosEpic/"
+
 
 # Construct the path using the username
 replays_path = f"/mnt/c/Users/{username}/OneDrive/Documents/My Games/Rocket League/TAGame/DemosEpic/"
