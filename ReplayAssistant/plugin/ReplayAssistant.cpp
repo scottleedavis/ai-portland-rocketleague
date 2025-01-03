@@ -28,134 +28,6 @@ const std::string replay_prepare = "replay_prepare";
 const std::string replay_prompt = "replay_prompt";
 const std::string replay_messages = "replay_messages";
 
-static ImGui::MarkdownConfig mdConfig;
-
-void MarkdownFormatCallback(const ImGui::MarkdownFormatInfo& markdownFormatInfo_, bool start_)
-{
-    // Call the default first so any settings can be overwritten by our implementation.
-    // Alternatively could be called or not called in a switch statement on a case by case basis.
-    // See defaultMarkdownFormatCallback definition for furhter examples of how to use it.
-    ImGui::defaultMarkdownFormatCallback(markdownFormatInfo_, start_);
-
-    switch (markdownFormatInfo_.type)
-    {
-        // example: change the colour of heading level 2
-    case ImGui::MarkdownFormatType::HEADING:
-    {
-        if (markdownFormatInfo_.level == 2)
-        {
-            if (start_)
-            {
-                ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
-            }
-            else
-            {
-                ImGui::PopStyleColor();
-            }
-        }
-        break;
-    }
-    default:
-    {
-        break;
-    }
-    }
-}
-
-static ImFont* H1 = NULL;
-static ImFont* H2 = NULL;
-static ImFont* H3 = NULL;
-
-void Markdown(const std::string& markdown_)
-{
-    //mdConfig.linkCallback = LinkCallback;
-    mdConfig.tooltipCallback = NULL;
-    //mdConfig.imageCallback = ImageCallback;
-    //mdConfig.linkIcon = ICON_FA_LINK;
-    mdConfig.headingFormats[0] = { H1, true };
-    mdConfig.headingFormats[1] = { H2, true };
-    mdConfig.headingFormats[2] = { H3, false };
-    mdConfig.userData = NULL;
-    mdConfig.formatCallback = MarkdownFormatCallback;
-    ImGui::Markdown(markdown_.c_str(), markdown_.length(), mdConfig);
-}
-
-void ReplayAssistant::LogWindow() {
-    const float footerHeightToReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-    if (ImGui::BeginChild("ScrollRegion##", ImVec2(0, -footerHeightToReserve), false, 0))
-    {
-        ImGui::PushTextWrapPos();
-
-        std::stringstream ss;
-        for (const std::string& item : m_ConsoleSystem)
-            ss << item << "\n"; 
-        std::string joined_string = ss.str();
-        Markdown(joined_string.c_str());
-
-        ImGui::PopTextWrapPos();
-
-        if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
-            ImGui::SetScrollHereY(1.0f);
-
-        ImGui::EndChild();
-    }
-}
-
-void ReplayAssistant::InputBar() {
-
-    ImGuiInputTextFlags inputTextFlags =
-        ImGuiInputTextFlags_CallbackHistory | ImGuiInputTextFlags_CallbackCharFilter | ImGuiInputTextFlags_CallbackCompletion |
-        ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackAlways;
-
-    bool reclaimFocus = false;
-
-    ImGui::PushItemWidth(-ImGui::GetStyle().ItemSpacing.x * 7);
-    if (ImGui::InputText("Send", &m_Buffer[0], m_Buffer.capacity(), inputTextFlags, ReplayAssistant::InputCallback, this))
-    {
-        if (!m_Buffer.empty())
-        {
-            std::string message = "user: " + m_Buffer;
-            LOG(message);
-            m_ConsoleSystem.push_back(message);
-
-            this->OnPromptAssistant(this->split_string_on_spaces(m_Buffer));
-            
-
-        }
-
-        reclaimFocus = true;
-
-    }
-    ImGui::PopItemWidth();
-
-    ImGui::SetItemDefaultFocus();
-    if (reclaimFocus)
-        ImGui::SetKeyboardFocusHere(-1); // Focus on command line after clearing.
-}
-
-void ReplayAssistant::RenderWindow() {
-
-    if (ImGui::Button("Prepare Replay"))
-    {
-       this->OnReplayAssistant();
-        gameWrapper->Toast("Preparing Assistant...", "Lets go", "cool", 5.0, ToastType_Info);
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Get Messages"))
-    {
-        this->checkMessages();
-    }
-    ImGui::Separator();
-
-
-    this->LogWindow();
-
-    ImGui::Separator();
-
-    this->InputBar();
-
-
-}
 
 void ReplayAssistant::RenderSettings() {
     LOG("settings render");
@@ -621,4 +493,134 @@ std::vector<std::string> ReplayAssistant::split_string_on_comma(const std::strin
     }
 
     return result;
+}
+
+void MarkdownFormatCallback(const ImGui::MarkdownFormatInfo& markdownFormatInfo_, bool start_)
+{
+    // Call the default first so any settings can be overwritten by our implementation.
+    // Alternatively could be called or not called in a switch statement on a case by case basis.
+    // See defaultMarkdownFormatCallback definition for furhter examples of how to use it.
+    ImGui::defaultMarkdownFormatCallback(markdownFormatInfo_, start_);
+
+    switch (markdownFormatInfo_.type)
+    {
+        // example: change the colour of heading level 2
+    case ImGui::MarkdownFormatType::HEADING:
+    {
+        if (markdownFormatInfo_.level == 2)
+        {
+            if (start_)
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
+            }
+            else
+            {
+                ImGui::PopStyleColor();
+            }
+        }
+        break;
+    }
+    default:
+    {
+        break;
+    }
+    }
+}
+
+
+static ImGui::MarkdownConfig mdConfig;
+
+static ImFont* H1 = NULL;
+static ImFont* H2 = NULL;
+static ImFont* H3 = NULL;
+
+void Markdown(const std::string& markdown_)
+{
+    //mdConfig.linkCallback = LinkCallback;
+    mdConfig.tooltipCallback = NULL;
+    //mdConfig.imageCallback = ImageCallback;
+    //mdConfig.linkIcon = ICON_FA_LINK;
+    mdConfig.headingFormats[0] = { H1, true };
+    mdConfig.headingFormats[1] = { H2, true };
+    mdConfig.headingFormats[2] = { H3, false };
+    mdConfig.userData = NULL;
+    mdConfig.formatCallback = MarkdownFormatCallback;
+    ImGui::Markdown(markdown_.c_str(), markdown_.length(), mdConfig);
+}
+
+void ReplayAssistant::LogWindow() {
+    const float footerHeightToReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+    if (ImGui::BeginChild("ScrollRegion##", ImVec2(0, -footerHeightToReserve), false, 0))
+    {
+        ImGui::PushTextWrapPos();
+
+        std::stringstream ss;
+        for (const std::string& item : m_ConsoleSystem)
+            ss << item << "\n";
+        std::string joined_string = ss.str();
+        Markdown(joined_string.c_str());
+
+        ImGui::PopTextWrapPos();
+
+        if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+            ImGui::SetScrollHereY(1.0f);
+
+        ImGui::EndChild();
+    }
+}
+
+void ReplayAssistant::InputBar() {
+
+    ImGuiInputTextFlags inputTextFlags =
+        ImGuiInputTextFlags_CallbackHistory | ImGuiInputTextFlags_CallbackCharFilter | ImGuiInputTextFlags_CallbackCompletion |
+        ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackAlways;
+
+    bool reclaimFocus = false;
+
+    ImGui::PushItemWidth(-ImGui::GetStyle().ItemSpacing.x * 7);
+    if (ImGui::InputText("Send", &m_Buffer[0], m_Buffer.capacity(), inputTextFlags, ReplayAssistant::InputCallback, this))
+    {
+        if (!m_Buffer.empty())
+        {
+            std::string message = "user: " + m_Buffer;
+            LOG(message);
+            m_ConsoleSystem.push_back(message);
+
+            this->OnPromptAssistant(this->split_string_on_spaces(m_Buffer));
+
+
+        }
+
+        reclaimFocus = true;
+
+    }
+    ImGui::PopItemWidth();
+
+    ImGui::SetItemDefaultFocus();
+    if (reclaimFocus)
+        ImGui::SetKeyboardFocusHere(-1); // Focus on command line after clearing.
+}
+
+void ReplayAssistant::RenderWindow() {
+
+    if (ImGui::Button("Prepare Replay"))
+    {
+        this->OnReplayAssistant();
+        gameWrapper->Toast("Preparing Assistant...", "Lets go", "cool", 5.0, ToastType_Info);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Get Messages"))
+    {
+        this->checkMessages();
+    }
+    ImGui::Separator();
+
+
+    this->LogWindow();
+
+    ImGui::Separator();
+
+    this->InputBar();
+
+
 }

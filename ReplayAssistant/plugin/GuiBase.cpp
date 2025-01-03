@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "GuiBase.h"
 
+
 std::string SettingsWindowBase::GetPluginName()
 {
 	return "ReplayAssistant";

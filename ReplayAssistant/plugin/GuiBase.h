@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "bakkesmod/plugin/PluginSettingsWindow.h"
 #include "bakkesmod/plugin/pluginwindow.h"
+#include "imgui_markdown.h"  
 
 class SettingsWindowBase : public BakkesMod::Plugin::PluginSettingsWindow
 {
