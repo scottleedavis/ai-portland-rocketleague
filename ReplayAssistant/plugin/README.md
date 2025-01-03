@@ -16,9 +16,9 @@ ReplayAssistant is a BakkesMod plugin designed to provide an OpenAI assisnt prom
 
 ## Usage
 
-- Start a free play session in Rocket League.
-- Begin practicing ground dribbles.
-- Observe on-screen feedback provided by ReplayAssistant to adjust your technique accordingly.
+- Start a replay with the plugin enabled.
+- Once in a replay you'd like an assistant with, click the replay assistant button.
+- interact by typing in free form questions into the thread/prompt.
 
 ## Future Goals
 
