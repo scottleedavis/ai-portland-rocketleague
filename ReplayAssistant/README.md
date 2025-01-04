@@ -53,11 +53,21 @@
      ```bash
      ./build.sh
      ```
+     or alternatively
+     Build Docker
+     ```bash
+     docker build -t replay-assistant-service .
+     ```
 4. Run Server
      ```bash
      source venv/bin/activate
      ./run.sh
      ```
+     or alternatively
+   Run Docker 
+   ```bash
+   docker run -p 5000:5000 -e OPENAI_API_KEY=your_openai_api_key replay-assistant-service
+   ```
 ---
 
 ### Installation
