@@ -15,7 +15,6 @@
 
 1. **Prerequisites**:
    - Ensure [BakkesMod](https://bakkesmod.com/) is installed.
-   - Obtain access to OpenAI's API.  `OPENAI_API_KEY=<youkey>`
 
 2. **Installation Steps**:
    - Download the ReplayAssistant plugin files from this repository.
@@ -31,6 +30,8 @@
 ## Future Goals
 
 - Improve markdown rendering quality with images and fonts.
+- Interact with the current frame
+- Annotate the replay
 
 # ReplayAssistant Service [service/](service/)
 
