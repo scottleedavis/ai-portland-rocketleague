@@ -9,6 +9,6 @@ output/*.replay
 output/*.txt
 output/*.md
 rattletrap*
-venv
+venv*
 replays/*.replay
 ReplayAssistant

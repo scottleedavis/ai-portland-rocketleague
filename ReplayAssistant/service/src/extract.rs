@@ -73,6 +73,54 @@ pub fn extract_replay(input: &str) -> io::Result<String> {
 
     let json_output = format!("./output/{}.json", filename);
 
+    let pre_output_status = Command::new(if rattletrap_exists {
+        rattletrap_name
+    } else {
+        "./rattletrap"
+    })
+    .arg("-f")
+    .arg("-i")
+    .arg(input)
+    .arg("-o")
+    .arg(&json_output)
+    .output();
+
+
+    match pre_output_status {
+        Ok(output) => {
+            if !output.status.success() {
+                eprintln!(
+                    "Failed to extract replay data. Error: {}",
+                    String::from_utf8_lossy(&output.stderr)
+                );
+                return Err(io::Error::new(io::ErrorKind::Other, "Rattletrap failed"));
+            }
+            let json_data = fs::read_to_string(&json_output)?;
+            let parsed_data: serde_json::Value = serde_json::from_str(&json_data)?;
+            let match_guid = find_property(
+                parsed_data.pointer("/header/body/properties/elements").unwrap_or(&Value::Null),
+                "MatchGuid",
+            )
+            .and_then(|v| v.as_str().map(|s| s.to_string()))
+            .unwrap_or_else(|| "unknown_match_guid".to_string());
+
+            // println!("{}",match_guid);
+            let cache_check = format!("./output/{}.replay.frames.json.csv",match_guid);
+            let path = Path::new(&cache_check);
+
+            if path.exists() {
+                return Ok(match_guid)
+            } else {
+                println!("Replay not cached.  Extracting...");
+            }     
+
+        }
+        Err(e) => {
+            eprintln!("Failed to execute Rattletrap: {}", e);
+            return Err(e);
+        }
+    }
+
     let output_status = Command::new(if rattletrap_exists {
         rattletrap_name
     } else {
@@ -109,6 +157,7 @@ pub fn extract_replay(input: &str) -> io::Result<String> {
     )
     .and_then(|v| v.as_str().map(|s| s.to_string()))
     .unwrap_or_else(|| "unknown_match_guid".to_string());
+
 
     match parse_replay(parsed_data, match_guid.clone()) {
         Ok(_) => {/*println!("Replay data parsed successfully.")*/},

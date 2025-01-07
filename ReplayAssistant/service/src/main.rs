@@ -5,6 +5,7 @@ mod ai;
 use std::env;
 use std::fs;
 use std::process;
+use std::path::Path;
 use serde_json::Value;
 
 use tokio;
@@ -44,15 +45,20 @@ async fn main() {
                 }
             };
 
-            let replay_file = format!("./output/{}.replay.frames.json", match_guid);
-            let player_statistics_file = format!("./output/{}.player_stats.json", match_guid);
-            let goals_file = format!("./output/{}.goals.json", match_guid);
-            let highlights_file = format!("./output/{}.highlights.json", match_guid);
+            let cache_check = format!("./output/{}.replay.frames.json.csv",match_guid);
+            let path = Path::new(&cache_check);
 
-            for file in [replay_file, player_statistics_file, goals_file, highlights_file].iter() {
-                process_conversion(file);
-            }
-            delete_json_files("./output");
+            if !path.exists() {
+                let replay_file = format!("./output/{}.replay.frames.json", match_guid);
+                let player_statistics_file = format!("./output/{}.player_stats.json", match_guid);
+                let goals_file = format!("./output/{}.goals.json", match_guid);
+                let highlights_file = format!("./output/{}.highlights.json", match_guid);
+    
+                for file in [replay_file, player_statistics_file, goals_file, highlights_file].iter() {
+                    process_conversion(file);
+                }
+                delete_json_files("./output");
+            }     
 
             println!("Creating assistant...");
             match ai::create_assistant(&match_guid).await {

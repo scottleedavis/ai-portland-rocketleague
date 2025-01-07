@@ -3,18 +3,9 @@ import subprocess
 import shutil
 import os
 import urllib.parse
+import time
 
 app = Flask(__name__)
-
-# Run 'whoami' and get the username
-username = subprocess.check_output("whoami", shell=True).decode().strip().split("\\")[-1]
-
-# Construct the path using the username
-replays_path = f"/mnt/c/Users/{username}/OneDrive/Documents/My Games/Rocket League/TAGame/DemosEpic/"
-
-
-# Construct the path using the username
-replays_path = f"/mnt/c/Users/{username}/OneDrive/Documents/My Games/Rocket League/TAGame/DemosEpic/"
 replays_dest = "./replays" 
 
 if not os.path.exists(replays_dest):
@@ -24,16 +15,14 @@ if not os.path.exists(replays_dest):
 def handle_replay(guid):
 
     print("Got request for ",guid)
-    source_file = os.path.join(replays_path, guid + ".replay")
     destination_file = os.path.join(replays_dest, guid + ".replay")
 
+    time.sleep(1)
     try:
-        if not os.path.isfile(source_file):
-            return f"Replay file for GUID {guid} not found at {source_file}.", 404
-        
-        shutil.copy(source_file, destination_file)
+        if not os.path.isfile(destination_file):
+            return f"Replay file for GUID {guid} not found at {destination_file}.", 404
     except Exception as e:
-        return f"Error copying file: {str(e)}", 500
+        return f"Error accessing file: {str(e)}", 500
 
     command = ["./ReplayAssistant", "prepare", destination_file]
     
@@ -94,4 +83,4 @@ def query(assistant_id,thread_id, query):
     
 
 if __name__ == '__main__':
-    app.run(host='localhost', port=5000)
+    app.run(host='0.0.0.0', port=5000)
