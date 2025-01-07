@@ -35,7 +35,7 @@
 
 # ReplayAssistant Service [service/](service/)
 
-**ReplayAssistant** is a command-line tool, written in Rust, parses binary replay files into csv files, and connects them to an OpenAI Assistant with instructions. ReplayAssistant extracts tactical insights, performance metrics, and actionable feedback designed to elevate gameplay.
+**ReplayAssistant** is a command-line tool written in Rust, that parses binary replay files into csv files and connects them to an OpenAI Assistant with instructions. ReplayAssistant extracts tactical insights, performance metrics, and actionable feedback designed to elevate gameplay.
 
 ---
 
