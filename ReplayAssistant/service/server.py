@@ -11,10 +11,6 @@ username = subprocess.check_output("whoami", shell=True).decode().strip().split(
 
 # Construct the path using the username
 replays_path = f"/mnt/c/Users/{username}/OneDrive/Documents/My Games/Rocket League/TAGame/DemosEpic/"
-
-
-# Construct the path using the username
-replays_path = f"/mnt/c/Users/{username}/OneDrive/Documents/My Games/Rocket League/TAGame/DemosEpic/"
 replays_dest = "./replays" 
 
 if not os.path.exists(replays_dest):
